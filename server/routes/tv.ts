@@ -16,6 +16,11 @@ const tvRoutes = Router();
 
 tvRoutes.get('/:id', async (req, res, next) => {
   const tmdb = new TheMovieDb();
+  try {
+    const tv = await tmdb.getTvShow({
+      tvId: Number(req.params.id),
+      language: (req.query.language as string) ?? req.locale,
+    });
 
   try {
     const tmdbTv = await tmdb.getTvShow({
