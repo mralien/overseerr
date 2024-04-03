@@ -1205,13 +1205,5 @@
   "components.Settings.Notifications.NotificationsPushover.deviceDefault": "Enhedsstandard",
   "components.Settings.Notifications.NotificationsPushover.sound": "Notifikationslyd",
   "components.UserProfile.UserSettings.UserNotificationSettings.deviceDefault": "Enhedsstandard",
-  "components.UserProfile.UserSettings.UserNotificationSettings.sound": "Notifikationslyd",
-  "components.UserList.validationUsername": "Angiv et brugernavn",
-  "components.Login.signinwithjellyfin": "Brug din {mediaServerName} konto",
-  "components.Login.username": "Brugernavn",
-  "components.Login.validationEmailFormat": "Ugyldig e-mail",
-  "components.Login.validationEmailRequired": "Angiv en e-mail",
-  "components.Login.validationusernamerequired": "Brugernavn kræves",
-  "components.UserList.username": "Brugernavn",
-  "components.Login.credentialerror": "Brugernavnet eller kodeordet er forkert."
+  "components.UserProfile.UserSettings.UserNotificationSettings.sound": "Notifikationslyd"
 }
