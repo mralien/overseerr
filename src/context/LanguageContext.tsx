@@ -1,6 +1,40 @@
 import { type AvailableLocale } from '@server/types/languages';
 import React from 'react';
 
+export type AvailableLocale =
+  | 'ar'
+  | 'bg'
+  | 'ca'
+  | 'cs'
+  | 'da'
+  | 'de'
+  | 'en'
+  | 'el'
+  | 'es'
+  | 'fi'
+  | 'fr'
+  | 'hr'
+  | 'he'
+  | 'hi'
+  | 'hu'
+  | 'it'
+  | 'ja'
+  | 'ko'
+  | 'lt'
+  | 'nb-NO'
+  | 'nl'
+  | 'pl'
+  | 'pt-BR'
+  | 'pt-PT'
+  | 'ro'
+  | 'ru'
+  | 'sq'
+  | 'sr'
+  | 'sv'
+  | 'uk'
+  | 'zh-CN'
+  | 'zh-TW';
+
 type AvailableLanguageObject = Record<
   string,
   { code: AvailableLocale; display: string }
@@ -34,10 +68,6 @@ export const availableLanguages: AvailableLanguageObject = {
   es: {
     code: 'es',
     display: 'Español',
-  },
-  'es-MX': {
-    code: 'es-MX',
-    display: 'Español (Latinoamérica)',
   },
   fi: {
     code: 'fi',
