@@ -291,7 +291,7 @@ class PlexTvAPI extends ExternalAPI {
           headers: {
             'If-None-Match': cachedWatchlist?.etag,
           },
-          baseURL: 'https://discover.provider.plex.tv',
+          baseURL: 'https://metadata.provider.plex.tv',
           validateStatus: (status) => status < 400, // Allow HTTP 304 to return without error
         }
       );

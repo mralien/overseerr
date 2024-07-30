@@ -72,75 +72,20 @@ export const startJobs = (): void => {
       cancelFn: () => plexFullScanner.cancel(),
     });
 
-    scheduledJobs.push({
-      id: 'plex-refresh-token',
-      name: 'Plex Refresh Token',
-      type: 'process',
-      interval: 'fixed',
-      cronSchedule: jobs['plex-refresh-token'].schedule,
-      job: schedule.scheduleJob(jobs['plex-refresh-token'].schedule, () => {
-        logger.info('Starting scheduled job: Plex Refresh Token', {
-          label: 'Jobs',
-        });
-        refreshToken.run();
-      }),
-    });
-
-    // Watchlist Sync
-    scheduledJobs.push({
-      id: 'plex-watchlist-sync',
-      name: 'Plex Watchlist Sync',
-      type: 'process',
-      interval: 'seconds',
-      cronSchedule: jobs['plex-watchlist-sync'].schedule,
-      job: schedule.scheduleJob(jobs['plex-watchlist-sync'].schedule, () => {
-        logger.info('Starting scheduled job: Plex Watchlist Sync', {
-          label: 'Jobs',
-        });
-        watchlistSync.syncWatchlist();
-      }),
-    });
-  } else if (
-    mediaServerType === MediaServerType.JELLYFIN ||
-    mediaServerType === MediaServerType.EMBY
-  ) {
-    // Run recently added jellyfin sync every 5 minutes
-    scheduledJobs.push({
-      id: 'jellyfin-recently-added-scan',
-      name: 'Jellyfin Recently Added Scan',
-      type: 'process',
-      interval: 'minutes',
-      cronSchedule: jobs['jellyfin-recently-added-scan'].schedule,
-      job: schedule.scheduleJob(
-        jobs['jellyfin-recently-added-scan'].schedule,
-        () => {
-          logger.info('Starting scheduled job: Jellyfin Recently Added Scan', {
-            label: 'Jobs',
-          });
-          jellyfinRecentScanner.run();
-        }
-      ),
-      running: () => jellyfinRecentScanner.status().running,
-      cancelFn: () => jellyfinRecentScanner.cancel(),
-    });
-
-    // Run full jellyfin sync every 24 hours
-    scheduledJobs.push({
-      id: 'jellyfin-full-scan',
-      name: 'Jellyfin Full Library Scan',
-      type: 'process',
-      interval: 'hours',
-      cronSchedule: jobs['jellyfin-full-scan'].schedule,
-      job: schedule.scheduleJob(jobs['jellyfin-full-scan'].schedule, () => {
-        logger.info('Starting scheduled job: Jellyfin Full Scan', {
-          label: 'Jobs',
-        });
-        jellyfinFullScanner.run();
-      }),
-      running: () => jellyfinFullScanner.status().running,
-      cancelFn: () => jellyfinFullScanner.cancel(),
-    });
-  }
+  // Watchlist Sync
+  scheduledJobs.push({
+    id: 'plex-watchlist-sync',
+    name: 'Plex Watchlist Sync',
+    type: 'process',
+    interval: 'seconds',
+    cronSchedule: jobs['plex-watchlist-sync'].schedule,
+    job: schedule.scheduleJob(jobs['plex-watchlist-sync'].schedule, () => {
+      logger.info('Starting scheduled job: Plex Watchlist Sync', {
+        label: 'Jobs',
+      });
+      watchlistSync.syncWatchlist();
+    }),
+  });
 
   // Run full radarr scan every 24 hours
   scheduledJobs.push({
