@@ -29,87 +29,59 @@ import { FormattedRelativeTime, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
 import useSWR from 'swr';
 
-const messages: { [messageName: string]: MessageDescriptor } = defineMessages(
-  'components.Settings.SettingsJobsCache',
-  {
-    jobsandcache: 'Jobs & Cache',
-    jobs: 'Jobs',
-    jobsDescription:
-      'Seerr performs certain maintenance tasks as regularly-scheduled jobs, but they can also be manually triggered below. Manually running a job will not alter its schedule.',
-    jobname: 'Job Name',
-    jobtype: 'Type',
-    nextexecution: 'Next Execution',
-    runnow: 'Run Now',
-    canceljob: 'Cancel Job',
-    jobstarted: '{jobname} started.',
-    jobcancelled: '{jobname} canceled.',
-    process: 'Process',
-    command: 'Command',
-    cache: 'Cache',
-    cacheDescription:
-      'Seerr caches requests to external API endpoints to optimize performance and avoid making unnecessary API calls.',
-    cacheflushed: '{cachename} cache flushed.',
-    cachename: 'Cache Name',
-    cachehits: 'Hits',
-    cachemisses: 'Misses',
-    cachekeys: 'Total Keys',
-    cacheksize: 'Key Size',
-    cachevsize: 'Value Size',
-    flushcache: 'Flush Cache',
-    dnsCache: 'DNS Cache',
-    dnsCacheDescription:
-      'Seerr caches DNS lookups to optimize performance and avoid making unnecessary API calls.',
-    dnscacheflushed: '{hostname} dns cache flushed.',
-    dnscachename: 'Hostname',
-    dnscacheactiveaddress: 'Active Address',
-    dnscachehits: 'Hits',
-    dnscachemisses: 'Misses',
-    dnscacheage: 'Age',
-    flushdnscache: 'Flush DNS Cache',
-    dnsCacheGlobalStats: 'Global DNS Cache Stats',
-    dnsCacheGlobalStatsDescription:
-      'These stats are aggregated across all DNS cache entries.',
-    size: 'Size',
-    hits: 'Hits',
-    misses: 'Misses',
-    failures: 'Failures',
-    ipv4Fallbacks: 'IPv4 Fallbacks',
-    hitRate: 'Hit Rate',
-    unknownJob: 'Unknown Job',
-    'plex-recently-added-scan': 'Plex Recently Added Scan',
-    'plex-full-scan': 'Plex Full Library Scan',
-    'plex-watchlist-sync': 'Plex Watchlist Sync',
-    'plex-refresh-token': 'Plex Refresh Token',
-    'jellyfin-full-scan': 'Jellyfin Full Library Scan',
-    'jellyfin-recently-added-scan': 'Jellyfin Recently Added Scan',
-    'availability-sync': 'Media Availability Sync',
-    'radarr-scan': 'Radarr Scan',
-    'sonarr-scan': 'Sonarr Scan',
-    'download-sync': 'Download Sync',
-    'download-sync-reset': 'Download Sync Reset',
-    'image-cache-cleanup': 'Image Cache Cleanup',
-    'process-blacklisted-tags': 'Process Blacklisted Tags',
-    editJobSchedule: 'Modify Job',
-    jobScheduleEditSaved: 'Job edited successfully!',
-    jobScheduleEditFailed: 'Something went wrong while saving the job.',
-    editJobScheduleCurrent: 'Current Frequency',
-    editJobSchedulePrompt: 'New Frequency',
-    editJobScheduleSelectorDays:
-      'Every {jobScheduleDays, plural, one {day} other {{jobScheduleDays} days}}',
-    editJobScheduleSelectorHours:
-      'Every {jobScheduleHours, plural, one {hour} other {{jobScheduleHours} hours}}',
-    editJobScheduleSelectorMinutes:
-      'Every {jobScheduleMinutes, plural, one {minute} other {{jobScheduleMinutes} minutes}}',
-    editJobScheduleSelectorSeconds:
-      'Every {jobScheduleSeconds, plural, one {second} other {{jobScheduleSeconds} seconds}}',
-    imagecache: 'Image Cache',
-    imagecacheDescription:
-      'When enabled in settings, Seerr will proxy and cache images from pre-configured external sources. Cached images are saved into your config folder. You can find the files in <code>{appDataPath}/cache/images</code>.',
-    imagecachecount: 'Images Cached',
-    imagecachesize: 'Total Cache Size',
-    usersavatars: "Users' Avatars",
-  }
-);
+const messages: { [messageName: string]: MessageDescriptor } = defineMessages({
+  jobsandcache: 'Jobs & Cache',
+  jobs: 'Jobs',
+  jobsDescription:
+    'Overseerr performs certain maintenance tasks as regularly-scheduled jobs, but they can also be manually triggered below. Manually running a job will not alter its schedule.',
+  jobname: 'Job Name',
+  jobtype: 'Type',
+  nextexecution: 'Next Execution',
+  runnow: 'Run Now',
+  canceljob: 'Cancel Job',
+  jobstarted: '{jobname} started.',
+  jobcancelled: '{jobname} canceled.',
+  process: 'Process',
+  command: 'Command',
+  cache: 'Cache',
+  cacheDescription:
+    'Overseerr caches requests to external API endpoints to optimize performance and avoid making unnecessary API calls.',
+  cacheflushed: '{cachename} cache flushed.',
+  cachename: 'Cache Name',
+  cachehits: 'Hits',
+  cachemisses: 'Misses',
+  cachekeys: 'Total Keys',
+  cacheksize: 'Key Size',
+  cachevsize: 'Value Size',
+  flushcache: 'Flush Cache',
+  unknownJob: 'Unknown Job',
+  'plex-recently-added-scan': 'Plex Recently Added Scan',
+  'plex-full-scan': 'Plex Full Library Scan',
+  'plex-watchlist-sync': 'Plex Watchlist Sync',
+  'plex-refresh-token': 'Plex Refresh Token',
+  'availability-sync': 'Media Availability Sync',
+  'radarr-scan': 'Radarr Scan',
+  'sonarr-scan': 'Sonarr Scan',
+  'download-sync': 'Download Sync',
+  'download-sync-reset': 'Download Sync Reset',
+  'image-cache-cleanup': 'Image Cache Cleanup',
+  editJobSchedule: 'Modify Job',
+  jobScheduleEditSaved: 'Job edited successfully!',
+  jobScheduleEditFailed: 'Something went wrong while saving the job.',
+  editJobScheduleCurrent: 'Current Frequency',
+  editJobSchedulePrompt: 'New Frequency',
+  editJobScheduleSelectorHours:
+    'Every {jobScheduleHours, plural, one {hour} other {{jobScheduleHours} hours}}',
+  editJobScheduleSelectorMinutes:
+    'Every {jobScheduleMinutes, plural, one {minute} other {{jobScheduleMinutes} minutes}}',
+  editJobScheduleSelectorSeconds:
+    'Every {jobScheduleSeconds, plural, one {second} other {{jobScheduleSeconds} seconds}}',
+  imagecache: 'Image Cache',
+  imagecacheDescription:
+    'When enabled in settings, Overseerr will proxy and cache images from pre-configured external sources. Cached images are saved into your config folder. You can find the files in <code>{appDataPath}/cache/images</code>.',
+  imagecachecount: 'Images Cached',
+  imagecachesize: 'Total Cache Size',
+});
 
 interface Job {
   id: JobId;

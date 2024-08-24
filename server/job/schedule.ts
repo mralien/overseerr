@@ -4,10 +4,6 @@ import availabilitySync from '@server/lib/availabilitySync';
 import downloadTracker from '@server/lib/downloadtracker';
 import ImageProxy from '@server/lib/imageproxy';
 import refreshToken from '@server/lib/refreshToken';
-import {
-  jellyfinFullScanner,
-  jellyfinRecentScanner,
-} from '@server/lib/scanners/jellyfin';
 import { plexFullScanner, plexRecentScanner } from '@server/lib/scanners/plex';
 import { radarrScanner } from '@server/lib/scanners/radarr';
 import { sonarrScanner } from '@server/lib/scanners/sonarr';
@@ -184,19 +180,17 @@ export const startJobs = (): void => {
   });
 
   scheduledJobs.push({
-    id: 'process-blacklisted-tags',
-    name: 'Process Blacklisted Tags',
+    id: 'plex-refresh-token',
+    name: 'Plex Refresh Token',
     type: 'process',
-    interval: 'days',
-    cronSchedule: jobs['process-blacklisted-tags'].schedule,
-    job: schedule.scheduleJob(jobs['process-blacklisted-tags'].schedule, () => {
-      logger.info('Starting scheduled job: Process Blacklisted Tags', {
+    interval: 'fixed',
+    cronSchedule: jobs['plex-refresh-token'].schedule,
+    job: schedule.scheduleJob(jobs['plex-refresh-token'].schedule, () => {
+      logger.info('Starting scheduled job: Plex Refresh Token', {
         label: 'Jobs',
       });
-      blacklistedTagsProcessor.run();
+      refreshToken.run();
     }),
-    running: () => blacklistedTagsProcessor.status().running,
-    cancelFn: () => blacklistedTagsProcessor.cancel(),
   });
 
   logger.info('Scheduled jobs loaded', { label: 'Jobs' });

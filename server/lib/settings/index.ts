@@ -543,6 +543,9 @@ class Settings {
         'plex-watchlist-sync': {
           schedule: '0 */3 * * * *',
         },
+        'plex-refresh-token': {
+          schedule: '0 0 5 * * *',
+        },
         'radarr-scan': {
           schedule: '0 0 4 * * *',
         },
