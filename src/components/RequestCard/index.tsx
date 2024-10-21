@@ -403,11 +403,7 @@ const RequestCard = ({ request, onTitleData }: RequestCardProps) => {
               <span className="mr-2 font-bold ">
                 {intl.formatMessage(messages.seasons, {
                   seasonCount:
-                    (settings.currentSettings.enableSpecialEpisodes
-                      ? title.seasons.length
-                      : title.seasons.filter(
-                          (season) => season.seasonNumber !== 0
-                        ).length) === request.seasons.length
+                    title.seasons.length === request.seasons.length
                       ? 0
                       : request.seasons.length,
                 })}

@@ -471,11 +471,7 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
                   <span className="card-field-name">
                     {intl.formatMessage(messages.seasons, {
                       seasonCount:
-                        (settings.currentSettings.enableSpecialEpisodes
-                          ? title.seasons.length
-                          : title.seasons.filter(
-                              (season) => season.seasonNumber !== 0
-                            ).length) === request.seasons.length
+                        title.seasons.length === request.seasons.length
                           ? 0
                           : request.seasons.length,
                     })}

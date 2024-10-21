@@ -304,14 +304,16 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
   };
 
   const showHasSpecials = data.seasons.some(
-    (season) =>
-      season.seasonNumber === 0 &&
-      settings.currentSettings.enableSpecialEpisodes
+    (season) => season.seasonNumber === 0
   );
 
   const isComplete =
     (showHasSpecials ? seasonCount + 1 : seasonCount) <=
     getAllRequestedSeasons(false).length;
+
+  const is4kComplete =
+    (showHasSpecials ? seasonCount + 1 : seasonCount) <=
+    getAllRequestedSeasons(true).length;
 
   const is4kComplete =
     (showHasSpecials ? seasonCount + 1 : seasonCount) <=
@@ -785,11 +787,6 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
             {data.seasons
               .slice()
               .reverse()
-              .filter(
-                (season) =>
-                  settings.currentSettings.enableSpecialEpisodes ||
-                  season.seasonNumber !== 0
-              )
               .map((season) => {
                 const show4k =
                   settings.currentSettings.series4kEnabled &&
