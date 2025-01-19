@@ -24,11 +24,11 @@
   "components.MovieDetails.similar": "Vergelijkbare titels",
   "components.PersonDetails.appearsin": "Verschijningen",
   "components.PersonDetails.ascharacter": "als {character}",
-  "components.RequestBlock.seasons": "{seasonCount, plural, one {Seizoen} other {Seizoenen}}",
-  "components.RequestCard.seasons": "{seasonCount, plural, one {Seizoen} other {Seizoenen}}",
-  "components.RequestList.RequestItem.seasons": "{seasonCount, plural, one {Seizoen} other {Seizoenen}}",
-  "components.RequestList.requests": "Aanvragen",
-  "components.RequestModal.cancel": "Aanvraag annuleren",
+  "components.RequestBlock.seasons": "{seasonCount, plural, one {seizoen} other {seizoenen}}",
+  "components.RequestCard.seasons": "{seasonCount, plural, one {seizoen} other {seizoenen}}",
+  "components.RequestList.RequestItem.seasons": "{seasonCount, plural, one {seizoen} other {seizoenen}}",
+  "components.RequestList.requests": "Verzoeken",
+  "components.RequestModal.cancel": "Verzoek annuleren",
   "components.RequestModal.numberofepisodes": "Aantal afleveringen",
   "components.RequestModal.pendingrequest": "Aanvraag in behandeling",
   "components.RequestModal.requestCancel": "Aanvraag voor <strong>{title}</strong> geannuleerd.",
@@ -1207,5 +1207,6 @@
   "components.Settings.SonarrModal.animeSeriesType": "Serietype anime",
   "components.Settings.SonarrModal.seriesType": "Serietype",
   "components.UserProfile.UserSettings.UserNotificationSettings.sound": "Meldingsgeluid",
-  "components.Settings.Notifications.NotificationsPushover.deviceDefault": "Apparaatstandaard"
+  "components.Settings.Notifications.NotificationsPushover.deviceDefault": "Apparaatstandaard",
+  "components.Settings.SettingsJobsCache.plex-refresh-token": "Plex Vernieuwingstoken"
 }

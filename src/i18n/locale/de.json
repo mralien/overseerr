@@ -373,8 +373,6 @@
   "components.RequestModal.approve": "Anfrage genehmigen",
   "components.RequestModal.autoapproval": "Automatische Genehmigung",
   "components.RequestModal.cancel": "Anfrage abbrechen",
-  "components.RequestModal.edit": "Anfrage bearbeiten",
-  "components.RequestModal.errorediting": "Beim bearbeiten der Anfrage ist etwas schief gelaufen.",
   "components.RequestModal.numberofepisodes": "Anzahl der Folgen",
   "components.RequestModal.pending4krequest": "Ausstehende 4K Anfrage",
   "components.RequestModal.pendingapproval": "Deine Anfrage steht noch aus.",
