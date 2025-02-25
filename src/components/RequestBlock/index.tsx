@@ -21,7 +21,7 @@ import type { MediaRequest } from '@server/entity/MediaRequest';
 import axios from 'axios';
 import Link from 'next/link';
 import { useState } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { mutate } from 'swr';
 
 const messages = defineMessages('components.RequestBlock', {

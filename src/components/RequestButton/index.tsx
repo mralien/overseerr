@@ -15,7 +15,7 @@ import type Media from '@server/entity/Media';
 import type { MediaRequest } from '@server/entity/MediaRequest';
 import axios from 'axios';
 import { useMemo, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { mutate } from 'swr';
 
 const messages = defineMessages('components.RequestButton', {

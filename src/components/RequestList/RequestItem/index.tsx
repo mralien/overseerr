@@ -341,16 +341,6 @@ const RequestItem = ({ request, revalidateList }: RequestItemProps) => {
     mutate('/api/v1/request/count');
   };
 
-  const deleteMediaFile = async () => {
-    if (request.media) {
-      await axios.delete(
-        `/api/v1/media/${request.media.id}/file?is4k=${request.is4k}`
-      );
-      await axios.delete(`/api/v1/media/${request.media.id}`);
-      revalidateList();
-    }
-  };
-
   const retryRequest = async () => {
     setRetrying(true);
 

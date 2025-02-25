@@ -1,5 +1,4 @@
 import Badge from '@app/components/Common/Badge';
-import UserWarnings from '@app/components/Layout/UserWarnings';
 import VersionStatus from '@app/components/Layout/VersionStatus';
 import useClickOutside from '@app/hooks/useClickOutside';
 import { Permission, useUser } from '@app/hooks/useUser';
@@ -38,8 +37,6 @@ interface SidebarProps {
   setClosed: () => void;
   pendingRequestsCount: number;
   openIssuesCount: number;
-  revalidateIssueCount: () => void;
-  revalidateRequestsCount: () => void;
 }
 
 interface SidebarLinkProps {
@@ -124,8 +121,6 @@ const Sidebar = ({
   setClosed,
   pendingRequestsCount,
   openIssuesCount,
-  revalidateIssueCount,
-  revalidateRequestsCount,
 }: SidebarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -322,6 +317,41 @@ const Sidebar = ({
                             </Badge>
                           </div>
                         )}
+                        {sidebarLink.messagesKey === 'requests' &&
+                          pendingRequestsCount > 0 &&
+                          hasPermission(Permission.MANAGE_REQUESTS) && (
+                            <div className="ml-auto">
+                              <Badge
+                                className={`rounded-md bg-gradient-to-br ${
+                                  router.pathname.match(
+                                    sidebarLink.activeRegExp
+                                  )
+                                    ? 'border-indigo-600 from-indigo-700 to-purple-700'
+                                    : 'border-indigo-500 from-indigo-600 to-purple-600'
+                                }`}
+                              >
+                                {pendingRequestsCount}
+                              </Badge>
+                            </div>
+                          )}
+                        {sidebarLink.messagesKey === 'issues' &&
+                          openIssuesCount > 0 &&
+                          hasPermission(Permission.MANAGE_ISSUES) && (
+                            <div className="ml-auto">
+                              <Badge
+                                className={`rounded-md bg-gradient-to-br ${
+                                  router.pathname.match(
+                                    sidebarLink.activeRegExp
+                                  )
+                                    ? 'border-indigo-600 from-indigo-700 to-purple-700'
+                                    : 'border-indigo-500 from-indigo-600 to-purple-600'
+                                }`}
+                              >
+                                {openIssuesCount}
+                              </Badge>
+                            </div>
+                          )}
+                      </a>
                     </Link>
                   );
                 })}
