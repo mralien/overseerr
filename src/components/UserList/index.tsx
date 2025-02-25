@@ -384,7 +384,6 @@ const UserList = () => {
                           type="text"
                           inputMode="email"
                           autoComplete="off"
-                          data-form-type="other"
                           data-1pignore="true"
                           data-lpignore="true"
                           data-bwignore="true"

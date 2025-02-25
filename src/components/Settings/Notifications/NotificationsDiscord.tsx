@@ -235,7 +235,6 @@ const NotificationsDiscord = () => {
                     type="text"
                     placeholder={settings.currentSettings.applicationTitle}
                     autoComplete="off"
-                    data-form-type="other"
                     data-1pignore="true"
                     data-lpignore="true"
                     data-bwignore="true"
