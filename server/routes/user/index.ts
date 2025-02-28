@@ -240,8 +240,8 @@ router.get<{ userId: number }>(
   }
 );
 
-router.get<{ userId: number; endpoint: string }>(
-  '/:userId/pushSubscription/:endpoint',
+router.get<{ userId: number; key: string }>(
+  '/:userId/pushSubscription/:key',
   async (req, res, next) => {
     try {
       const userPushSubRepository = getRepository(UserPushSubscription);
@@ -252,7 +252,7 @@ router.get<{ userId: number; endpoint: string }>(
         },
         where: {
           user: { id: req.params.userId },
-          endpoint: req.params.endpoint,
+          p256dh: req.params.key,
         },
       });
 
@@ -263,8 +263,8 @@ router.get<{ userId: number; endpoint: string }>(
   }
 );
 
-router.delete<{ userId: number; endpoint: string }>(
-  '/:userId/pushSubscription/:endpoint',
+router.delete<{ userId: number; key: string }>(
+  '/:userId/pushSubscription/:key',
   async (req, res, next) => {
     try {
       const userPushSubRepository = getRepository(UserPushSubscription);
@@ -275,7 +275,7 @@ router.delete<{ userId: number; endpoint: string }>(
         },
         where: {
           user: { id: req.params.userId },
-          endpoint: req.params.endpoint,
+          p256dh: req.params.key,
         },
       });
 
@@ -284,7 +284,7 @@ router.delete<{ userId: number; endpoint: string }>(
     } catch (e) {
       logger.error('Something went wrong deleting the user push subcription', {
         label: 'API',
-        endpoint: req.params.endpoint,
+        key: req.params.key,
         errorMessage: e.message,
       });
       return next({

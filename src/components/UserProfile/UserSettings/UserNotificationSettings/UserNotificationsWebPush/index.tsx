@@ -8,7 +8,6 @@ import DeviceItem from '@app/components/UserProfile/UserSettings/UserNotificatio
 import useSettings from '@app/hooks/useSettings';
 import { useUser } from '@app/hooks/useUser';
 import globalMessages from '@app/i18n/globalMessages';
-import defineMessages from '@app/utils/defineMessages';
 import { ArrowDownOnSquareIcon } from '@heroicons/react/24/outline';
 import {
   CloudArrowDownIcon,
@@ -20,31 +19,28 @@ import axios from 'axios';
 import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
 import useSWR, { mutate } from 'swr';
 
-const messages = defineMessages(
-  'components.UserProfile.UserSettings.UserNotificationSettings.UserNotificationsWebPush',
-  {
-    webpushsettingssaved: 'Web push notification settings saved successfully!',
-    webpushsettingsfailed: 'Web push notification settings failed to save.',
-    enablewebpush: 'Enable web push',
-    disablewebpush: 'Disable web push',
-    managedevices: 'Manage Devices',
-    type: 'type',
-    created: 'Created',
-    device: 'Device',
-    subscriptiondeleted: 'Subscription deleted.',
-    subscriptiondeleteerror:
-      'Something went wrong while deleting the user subscription.',
-    nodevicestoshow: 'You have no web push subscriptions to show.',
-    webpushhasbeenenabled: 'Web push has been enabled.',
-    webpushhasbeendisabled: 'Web push has been disabled.',
-    enablingwebpusherror: 'Something went wrong while enabling web push.',
-    disablingwebpusherror: 'Something went wrong while disabling web push.',
-  }
-);
+const messages = defineMessages({
+  webpushsettingssaved: 'Web push notification settings saved successfully!',
+  webpushsettingsfailed: 'Web push notification settings failed to save.',
+  enablewebpush: 'Enable web push',
+  disablewebpush: 'Disable web push',
+  managedevices: 'Manage Devices',
+  type: 'type',
+  created: 'Created',
+  device: 'Device',
+  subscriptiondeleted: 'Subscription deleted.',
+  subscriptiondeleteerror:
+    'Something went wrong while deleting the user subscription.',
+  nodevicestoshow: 'You have no web push subscriptions to show.',
+  webpushhasbeenenabled: 'Web push has been enabled.',
+  webpushhasbeendisabled: 'Web push has been disabled.',
+  enablingwebpusherror: 'Something went wrong while enabling web push.',
+  disablingwebpusherror: 'Something went wrong while disabling web push.',
+});
 
 const UserWebPushSettings = () => {
   const intl = useIntl();
@@ -113,7 +109,7 @@ const UserWebPushSettings = () => {
 
   // Unsubscribes from the push manager
   // Deletes/disables corresponding push subscription from database
-  const disablePushNotifications = async (endpoint?: string) => {
+  const disablePushNotifications = async (p256dh?: string) => {
     if ('serviceWorker' in navigator && user?.id) {
       navigator.serviceWorker.getRegistration('/sw.js').then((registration) => {
         registration?.pushManager
@@ -122,21 +118,17 @@ const UserWebPushSettings = () => {
             const parsedSub = JSON.parse(JSON.stringify(subscription));
 
             await axios.delete(
-              `/api/v1/user/${user.id}/pushSubscription/${encodeURIComponent(
-                endpoint ?? parsedSub.endpoint
-              )}`
+              `/api/v1/user/${user?.id}/pushSubscription/${
+                p256dh ? p256dh : parsedSub.keys.p256dh
+              }`
             );
-
-            if (
-              subscription &&
-              (endpoint === parsedSub.endpoint || !endpoint)
-            ) {
+            if (subscription && (p256dh === parsedSub.keys.p256dh || !p256dh)) {
               subscription.unsubscribe();
               setWebPushEnabled(false);
             }
             addToast(
               intl.formatMessage(
-                endpoint
+                p256dh
                   ? messages.subscriptiondeleted
                   : messages.webpushhasbeendisabled
               ),
@@ -149,7 +141,7 @@ const UserWebPushSettings = () => {
           .catch(function () {
             addToast(
               intl.formatMessage(
-                endpoint
+                p256dh
                   ? messages.subscriptiondeleteerror
                   : messages.disablingwebpusherror
               ),
@@ -180,17 +172,12 @@ const UserWebPushSettings = () => {
                 const parsedKey = JSON.parse(JSON.stringify(subscription));
                 const currentUserPushSub =
                   await axios.get<UserPushSubscription>(
-                    `/api/v1/user/${
-                      user.id
-                    }/pushSubscription/${encodeURIComponent(
-                      parsedKey.endpoint
-                    )}`
+                    `/api/v1/user/${user.id}/pushSubscription/${parsedKey.keys.p256dh}`
                   );
 
-                if (currentUserPushSub.data.endpoint !== parsedKey.endpoint) {
+                if (currentUserPushSub.data.p256dh !== parsedKey.keys.p256dh) {
                   return;
                 }
-
                 setWebPushEnabled(true);
               } else {
                 setWebPushEnabled(false);
@@ -325,21 +312,15 @@ const UserWebPushSettings = () => {
         </h3>
         <div className="section">
           {dataDevices?.length ? (
-            dataDevices
-              ?.sort((a, b) => {
-                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                return dateB - dateA;
-              })
-              .map((device, index) => (
-                <div className="py-2" key={`device-list-${index}`}>
-                  <DeviceItem
-                    key={index}
-                    disablePushNotifications={disablePushNotifications}
-                    device={device}
-                  />
-                </div>
-              ))
+            dataDevices?.map((device, index) => (
+              <div className="py-2" key={`device-list-${index}`}>
+                <DeviceItem
+                  key={index}
+                  disablePushNotifications={disablePushNotifications}
+                  device={device}
+                />
+              </div>
+            ))
           ) : (
             <>
               <Alert

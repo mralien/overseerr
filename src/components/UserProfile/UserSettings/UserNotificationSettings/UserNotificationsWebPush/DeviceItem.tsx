@@ -1,12 +1,11 @@
 import ConfirmButton from '@app/components/Common/ConfirmButton';
 import globalMessages from '@app/i18n/globalMessages';
-import defineMessages from '@app/utils/defineMessages';
 import {
   ComputerDesktopIcon,
   DevicePhoneMobileIcon,
   TrashIcon,
 } from '@heroicons/react/24/solid';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { UAParser } from 'ua-parser-js';
 
 interface DeviceItemProps {
@@ -20,27 +19,22 @@ interface DeviceItemProps {
   };
 }
 
-const messages = defineMessages(
-  'components.UserProfile.UserSettings.UserNotificationSettings.UserNotificationsWebPush',
-  {
-    operatingsystem: 'Operating System',
-    browser: 'Browser',
-    engine: 'Engine',
-    deletesubscription: 'Delete Subscription',
-    unknown: 'Unknown',
-  }
-);
+const messages = defineMessages({
+  operatingsystem: 'Operating System',
+  browser: 'Browser',
+  engine: 'Engine',
+  deletesubscription: 'Delete Subscription',
+});
 
 const DeviceItem = ({ disablePushNotifications, device }: DeviceItemProps) => {
   const intl = useIntl();
-  const parsedUserAgent = UAParser(device.userAgent);
 
   return (
     <div className="relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-gray-800 py-4 text-gray-400 shadow-md ring-1 ring-gray-700 xl:h-28 xl:flex-row">
       <div className="relative flex w-full flex-col justify-between overflow-hidden sm:flex-row">
         <div className="relative z-10 flex w-full items-center overflow-hidden pl-4 pr-4 sm:pr-0 xl:w-7/12 2xl:w-2/3">
           <div className="relative h-auto w-12 flex-shrink-0 scale-100 transform-gpu overflow-hidden rounded-md transition duration-300 hover:scale-105">
-            {parsedUserAgent.device.type === 'mobile' ? (
+            {UAParser(device.userAgent).device.type === 'mobile' ? (
               <DevicePhoneMobileIcon />
             ) : (
               <ComputerDesktopIcon />
@@ -54,12 +48,12 @@ const DeviceItem = ({ disablePushNotifications, device }: DeviceItemProps) => {
                     month: 'long',
                     day: 'numeric',
                   })
-                : 'N/A'}
+                : 'Unknown'}
             </div>
             <div className="mr-2 min-w-0 truncate text-lg font-bold text-white hover:underline xl:text-xl">
-              {device.userAgent && parsedUserAgent.device.model
-                ? parsedUserAgent.device.model
-                : intl.formatMessage(messages.unknown)}
+              {device.userAgent
+                ? UAParser(device.userAgent).device.model
+                : 'Unknown'}
             </div>
           </div>
         </div>
@@ -69,7 +63,9 @@ const DeviceItem = ({ disablePushNotifications, device }: DeviceItemProps) => {
               {intl.formatMessage(messages.operatingsystem)}
             </span>
             <span className="flex truncate text-sm text-gray-300">
-              {device.userAgent ? parsedUserAgent.os.name : 'N/A'}
+              {device.userAgent
+                ? UAParser(device.userAgent).os.name
+                : 'Unknown'}
             </span>
           </div>
           <div className="card-field">
@@ -77,7 +73,9 @@ const DeviceItem = ({ disablePushNotifications, device }: DeviceItemProps) => {
               {intl.formatMessage(messages.browser)}
             </span>
             <span className="flex truncate text-sm text-gray-300">
-              {device.userAgent ? parsedUserAgent.browser.name : 'N/A'}
+              {device.userAgent
+                ? UAParser(device.userAgent).browser.name
+                : 'Unknown'}
             </span>
           </div>
           <div className="card-field">
@@ -85,14 +83,16 @@ const DeviceItem = ({ disablePushNotifications, device }: DeviceItemProps) => {
               {intl.formatMessage(messages.engine)}
             </span>
             <span className="flex truncate text-sm text-gray-300">
-              {device.userAgent ? parsedUserAgent.engine.name : 'N/A'}
+              {device.userAgent
+                ? UAParser(device.userAgent).engine.name
+                : 'Unknown'}
             </span>
           </div>
         </div>
       </div>
       <div className="z-10 mt-4 flex w-full flex-col justify-center space-y-2 pl-4 pr-4 xl:mt-0 xl:w-96 xl:items-end xl:pl-0">
         <ConfirmButton
-          onClick={() => disablePushNotifications(device.endpoint)}
+          onClick={() => disablePushNotifications(device.p256dh)}
           confirmText={intl.formatMessage(globalMessages.areyousure)}
           className="w-full"
         >
