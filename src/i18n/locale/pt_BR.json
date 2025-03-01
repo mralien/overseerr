@@ -1198,5 +1198,12 @@
   "components.MovieDetails.imdbuserscore": "Pontuação de usuário IMDB",
   "components.Settings.SonarrModal.tagRequestsInfo": "Adiciona automaticamente uma tag adicional com o ID de usuário e nome de exibição de quem pediu",
   "components.Settings.SonarrModal.tagRequests": "Marcar Pedidos",
-  "components.Settings.RadarrModal.tagRequests": "Marcar Pedidos"
+  "components.Settings.RadarrModal.tagRequests": "Marcar Pedidos",
+  "components.UserProfile.UserSettings.UserNotificationSettings.sound": "Som de Notificação",
+  "components.Settings.Notifications.NotificationsPushover.deviceDefault": "Dispositivo Padrão",
+  "components.Settings.Notifications.NotificationsPushover.sound": "Som de Notificação",
+  "components.Settings.SettingsJobsCache.plex-refresh-token": "Token de Atualização do Plex",
+  "components.Settings.SonarrModal.animeSeriesType": "Tipo de Série de Anime",
+  "components.UserProfile.UserSettings.UserNotificationSettings.deviceDefault": "Dispositivo Padrão",
+  "components.Settings.SonarrModal.seriesType": "Tipo de Série"
 }
