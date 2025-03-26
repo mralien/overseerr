@@ -141,49 +141,60 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
-        with:
-          images: |
-            ${{ github.repository }}
-            ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=${{ needs.semantic-release.outputs.new_release_version }}
-          labels: |
-            org.opencontainers.image.created=${{ steps.ts.outputs.TIMESTAMP }}
-
-      - name: Build & Push (multi-arch, single tag)
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          build-args: |
-            COMMIT_TAG=${{ github.sha }}
-            BUILD_VERSION=${{ needs.semantic-release.outputs.new_release_version }}
-            SOURCE_DATE_EPOCH=${{ steps.ts.outputs.TIMESTAMP }}
-          labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: |
-            type=gha,scope=linux/amd64
-            type=gha,scope=linux/arm64
-          cache-to: type=gha,mode=max
-          provenance: false
-
-      - name: Also tag :latest (non-pre-release only)
-        shell: bash
-        run: |
-          VER="${{ needs.semantic-release.outputs.new_release_version }}"
-          if [[ "$VER" != *"-"* ]]; then
-            docker buildx imagetools create \
-              -t ${{ github.repository }}:latest \
-              ${{ github.repository }}:${VER}
-            docker buildx imagetools create \
-              -t ghcr.io/${{ github.repository }}:latest \
-              ghcr.io/${{ github.repository }}:${VER}
-          fi
+  # build-snap:
+  #   name: Build Snap Package (${{ matrix.architecture }})
+  #   needs: semantic-release
+  #   runs-on: ubuntu-22.04
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       architecture:
+  #         - amd64
+  #         - arm64
+  #         - armhf
+  #   steps:
+  #     - name: Checkout Code
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Switch to master branch
+  #       run: git checkout master
+  #     - name: Pull latest changes
+  #       run: git pull
+  #     - name: Prepare
+  #       id: prepare
+  #       run: |
+  #         git fetch --prune --tags
+  #         if [[ $GITHUB_REF == refs/tags/* || $GITHUB_REF == refs/heads/master ]]; then
+  #           echo "RELEASE=stable" >> $GITHUB_OUTPUT
+  #         else
+  #           echo "RELEASE=edge" >> $GITHUB_OUTPUT
+  #         fi
+  #     - name: Set Up QEMU
+  #       uses: docker/setup-qemu-action@v2
+  #       with:
+  #         image: tonistiigi/binfmt@sha256:df15403e06a03c2f461c1f7938b171fda34a5849eb63a70e2a2109ed5a778bde
+  #     - name: Build Snap Package
+  #       uses: diddlesnaps/snapcraft-multiarch-action@v1
+  #       id: build
+  #       with:
+  #         architecture: ${{ matrix.architecture }}
+  #     - name: Upload Snap Package
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: overseerr-snap-package-${{ matrix.architecture }}
+  #         path: ${{ steps.build.outputs.snap }}
+  #     - name: Review Snap Package
+  #       uses: diddlesnaps/snapcraft-review-tools-action@v1
+  #       with:
+  #         snap: ${{ steps.build.outputs.snap }}
+  #     - name: Publish Snap Package
+  #       uses: snapcore/action-publish@v1
+  #       env:
+  #         SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAP_LOGIN }}
+  #       with:
+  #         snap: ${{ steps.build.outputs.snap }}
+  #         release: ${{ steps.prepare.outputs.RELEASE }}
 
   discord:
     name: Send Discord Notification
