@@ -1,4 +1,6 @@
-FROM node:22.20.0-alpine3.22@sha256:096829fd4bb8c2ce2340ed64dd2f857951f8704325f7acf53e3dc0561c36a214 AS build_image
+FROM node:18.18.2-alpine AS BUILD_IMAGE
+
+WORKDIR /app
 
 ARG SOURCE_DATE_EPOCH
 ARG TARGETPLATFORM
@@ -35,9 +37,12 @@ RUN pnpm prune --prod --ignore-scripts && \
 
 FROM node:22.20.0-alpine3.22@sha256:096829fd4bb8c2ce2340ed64dd2f857951f8704325f7acf53e3dc0561c36a214
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN touch config/DOCKER
+
+RUN echo "{\"commitTag\": \"${COMMIT_TAG}\"}" > committag.json
+
+
+FROM node:18.18.2-alpine
 
 WORKDIR /app
 
