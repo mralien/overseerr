@@ -17,6 +17,18 @@ class WatchlistSync {
   public async syncWatchlist() {
     const userRepository = getRepository(User);
 
+    const admin = await userRepository.findOne({
+      select: { id: true, plexToken: true },
+      where: { id: 1 },
+    });
+
+    if (!admin?.plexToken) {
+      logger.warn('Skipping watchlist sync for admin without plex token', {
+        label: 'Plex Watchlist Sync',
+      });
+      return;
+    }
+
     // Get users who actually have plex tokens
     const users = await userRepository
       .createQueryBuilder('user')

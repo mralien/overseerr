@@ -45,7 +45,7 @@ class AvailabilitySync {
       if (admin?.plexToken) {
         this.plexClient = new PlexAPI({ plexToken: admin.plexToken });
       } else {
-        logger.error('An admin is not configured.');
+        logger.warn('Plex is not configured. Skipping availability sync.');
       }
 
       for await (const media of this.loadAvailableMediaPaginated(pageSize)) {
