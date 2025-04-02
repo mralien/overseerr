@@ -3329,6 +3329,15 @@ paths:
                   type: string
               required:
                 - authToken
+  /auth/plex/refresh:
+    get:
+      summary: Refresh the users Plex token
+      description: Will refresh a users plex token. If it is already expired, this will have no effect.
+      tags:
+        - auth
+      responses:
+        '204':
+          description: OK
   /auth/plex/unlink:
     get:
       summary: Unlink Plex from currently logged in account

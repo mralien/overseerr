@@ -27,7 +27,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import * as Yup from 'yup';
 
 const messages = defineMessages({
@@ -67,6 +67,7 @@ const messages = defineMessages({
     'Only the logged in user can edit their own connected accounts.',
   connectplexaccount: 'Connect Plex Account',
   refreshedtoken: 'Refreshed Plex token.',
+  refreshfailure: 'Failed to refresh Plex token.',
   refreshtoken: 'Refresh Token',
   mustsetpasswordplex: 'You must set a password before disconnecting Plex.',
   disconnectPlex: 'Disconnect Plex',
@@ -122,8 +123,25 @@ const UserGeneralSettings = () => {
         autoDismiss: true,
       });
       revalidateUser();
+      mutate('/api/v1/settings/public');
     } catch (e) {
       addToast(intl.formatMessage(messages.plexdisconnectedfailure), {
+        appearance: 'error',
+        autoDismiss: true,
+      });
+    }
+  };
+
+  const refreshToken = async () => {
+    try {
+      await axios.get('/api/v1/auth/plex/refresh');
+      addToast(intl.formatMessage(messages.refreshedtoken), {
+        appearance: 'success',
+        autoDismiss: true,
+      });
+      revalidateUser();
+    } catch (e) {
+      addToast(intl.formatMessage(messages.refreshfailure), {
         appearance: 'error',
         autoDismiss: true,
       });
@@ -249,7 +267,9 @@ const UserGeneralSettings = () => {
                           <>
                             <div className="ml-4">
                               <LoginWithPlex
+                                key="connect-plex"
                                 onComplete={() => {
+                                  mutate('/api/v1/settings/public');
                                   revalidateUser();
                                 }}
                                 textOverride={intl.formatMessage(
@@ -261,24 +281,18 @@ const UserGeneralSettings = () => {
                         ) : (
                           <>
                             <div className="ml-4">
-                              <LoginWithPlex
-                                onComplete={() => {
-                                  addToast(
-                                    intl.formatMessage(messages.refreshedtoken),
-                                    {
-                                      appearance: 'success',
-                                      autoDismiss: true,
-                                    }
-                                  );
-                                  revalidateUser();
-                                }}
-                                svgIcon={<ArrowPathIcon />}
-                                textOverride={intl.formatMessage(
-                                  messages.refreshtoken
-                                )}
+                              <Button
+                                type="button"
+                                className="ml-4"
                                 buttonSize="sm"
+                                onClick={() => refreshToken()}
                                 buttonType="primary"
-                              />
+                              >
+                                <ArrowPathIcon />
+                                <span>
+                                  {intl.formatMessage(messages.refreshtoken)}
+                                </span>
+                              </Button>
                             </div>
                             <Tooltip
                               content={intl.formatMessage(

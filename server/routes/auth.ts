@@ -189,6 +189,34 @@ authRoutes.post('/plex', async (req, res, next) => {
   }
 });
 
+authRoutes.get('/plex/refresh', isAuthenticated(), async (req, res, next) => {
+  const userRepository = getRepository(User);
+  try {
+    if (!req.user) {
+      throw new Error('User data is not present in request.');
+    }
+
+    const user = await userRepository.findOneByOrFail({ id: req.user.id });
+
+    if (user.plexToken) {
+      const plexTvApi = new PlexTvAPI(user.plexToken);
+      plexTvApi.pingToken(user.displayName);
+    }
+
+    return res.status(204).send();
+  } catch (e) {
+    logger.error('Something went wrong while refreshing a users Plex token', {
+      label: 'API',
+      errorMessage: e.message,
+      userId: req.user?.id,
+    });
+    return next({
+      status: 500,
+      message: 'Unable to refresh Plex token.',
+    });
+  }
+});
+
 authRoutes.get('/plex/unlink', isAuthenticated(), async (req, res, next) => {
   const userRepository = getRepository(User);
   try {
