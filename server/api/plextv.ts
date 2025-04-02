@@ -376,7 +376,7 @@ class PlexTvAPI extends ExternalAPI {
         throw new Error('No pong response');
       }
     } catch (e) {
-      logger.error(`Failed to ping token for ${displayName}`, {
+      logger.error(`Failed to ping token for ${displayName ?? 'a user'}`, {
         label: 'Plex Refresh Token',
         errorMessage: e.message,
         userDisplayName: displayName,
