@@ -12,11 +12,11 @@ import * as Yup from 'yup';
 const messages = defineMessages({
   welcometooverseerr: 'Welcome to Overseerr!',
   getstarted:
-    "Let's get started! To begin, we will need to create your administrator account. You can either do this by logging in with your Plex account, or creating a local user.",
+    "Let's get started! To begin, we will need to create your administrator account. You can either log in with your Plex account or configure a password.",
   validationEmail: 'You must provide a valid email address',
   validationpasswordminchars:
     'Password is too short; should be a minimum of 8 characters',
-  createlocalaccount: 'Create Local Account',
+  createlocalaccount: 'Create Account',
   createaccount: 'Create Account',
   creatingaccount: 'Creating Account...',
   goback: 'Go Back',

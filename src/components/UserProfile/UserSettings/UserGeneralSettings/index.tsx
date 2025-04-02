@@ -66,7 +66,7 @@ const messages = defineMessages({
   onlyloggedinuseredit:
     'Only the logged in user can edit their own connected accounts.',
   connectplexaccount: 'Connect Plex Account',
-  refreshedtoken: 'Refreshed Plex Token.',
+  refreshedtoken: 'Refreshed Plex token.',
   refreshtoken: 'Refresh Token',
   mustsetpasswordplex: 'You must set a password before disconnecting Plex.',
   disconnectPlex: 'Disconnect Plex',

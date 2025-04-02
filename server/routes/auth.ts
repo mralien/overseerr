@@ -97,7 +97,7 @@ authRoutes.post('/plex', async (req, res, next) => {
         if (user) {
           if (!user.plexId) {
             logger.info(
-              'Found matching Plex user; updating user with Plex data. Notice: Emails are no longer synced.',
+              'Found matching Plex user; updating user with Plex data.',
               {
                 label: 'API',
                 ip: req.ip,

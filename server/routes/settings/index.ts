@@ -117,7 +117,7 @@ settingsRoutes.post('/plex', async (req, res, next) => {
 
     if (!admin.plexToken) {
       throw new Error(
-        'The administrator must have their account connected to Plex to be able to set up a Plex server.'
+        'The owner account must have their account connected to Plex to be able to set up a Plex server.'
       );
     }
 
@@ -158,7 +158,9 @@ settingsRoutes.get('/plex/devices/servers', async (req, res, next) => {
     });
 
     if (!admin.plexToken) {
-      throw new Error('Plex must be configured to retrieve servers.');
+      throw new Error(
+        'The owner account must have Plex connected to retrieve servers.'
+      );
     }
 
     const plexTvClient = new PlexTvAPI(admin.plexToken);

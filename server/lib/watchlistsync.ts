@@ -23,9 +23,12 @@ class WatchlistSync {
     });
 
     if (!admin?.plexToken) {
-      logger.warn('Skipping watchlist sync for admin without plex token', {
-        label: 'Plex Watchlist Sync',
-      });
+      logger.warn(
+        'Skipping watchlist sync as owner account does not have plex configured.',
+        {
+          label: 'Plex Watchlist Sync',
+        }
+      );
       return;
     }
 

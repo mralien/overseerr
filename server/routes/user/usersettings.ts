@@ -10,6 +10,7 @@ import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
 import { isAuthenticated } from '@server/middleware/auth';
 import { Router } from 'express';
+import { z } from 'zod';
 import { canMakePermissionsChange } from '.';
 
 const isOwnProfileOrAdmin = (): Middleware => {
@@ -167,6 +168,11 @@ userSettingsRoutes.get<{ id: string }, { hasPassword: boolean }>(
   }
 );
 
+const EmailValidationObject = z.object({
+  newEmail: z.string().email('You must provide a valid email address.'),
+  currentPassword: z.string().optional(),
+});
+
 userSettingsRoutes.post<
   { id: string },
   null,
@@ -175,6 +181,7 @@ userSettingsRoutes.post<
   const userRepository = getRepository(User);
 
   try {
+    const requestBody = EmailValidationObject.parse(req.body);
     const user = await userRepository.findOne({
       where: { id: Number(req.params.id) },
     });
@@ -206,7 +213,7 @@ userSettingsRoutes.post<
       req.user?.hasPermission(Permission.MANAGE_USERS) &&
       req.user?.id !== user.id
     ) {
-      user.email = req.body.newEmail;
+      user.email = requestBody.newEmail;
       await userRepository.save(user);
       logger.debug('Email overriden by user.', {
         label: 'User Settings',
@@ -219,8 +226,8 @@ userSettingsRoutes.post<
     // If the user has a password, we need to check the currentPassword is correct
     if (
       user.password &&
-      (!req.body.currentPassword ||
-        !(await userWithPassword.passwordMatch(req.body.currentPassword)))
+      (!requestBody.currentPassword ||
+        !(await userWithPassword.passwordMatch(requestBody.currentPassword)))
     ) {
       logger.debug(
         'Attempt to change email for user failed. Invalid current password provided.',
@@ -229,7 +236,7 @@ userSettingsRoutes.post<
       return next({ status: 403, message: 'Current password is invalid.' });
     }
 
-    user.email = req.body.newEmail;
+    user.email = requestBody.newEmail;
     await userRepository.save(user);
 
     return res.status(204).send();
