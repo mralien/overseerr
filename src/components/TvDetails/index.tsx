@@ -235,8 +235,7 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
       .filter(
         (request) =>
           request.is4k === is4k &&
-          request.status !== MediaRequestStatus.DECLINED &&
-          request.status !== MediaRequestStatus.COMPLETED
+          request.status !== MediaRequestStatus.DECLINED
       )
       .reduce((requestedSeasons, request) => {
         return [
@@ -598,7 +597,9 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
                             </Badge>
                           </div>
                           {((!mSeason &&
-                            request?.status === MediaRequestStatus.APPROVED) ||
+                            (request?.status === MediaRequestStatus.APPROVED ||
+                              request?.status ===
+                                MediaRequestStatus.COMPLETED)) ||
                             mSeason?.status === MediaStatus.PROCESSING) && (
                             <>
                               <div className="hidden md:flex">
@@ -671,8 +672,10 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
                             </>
                           )}
                           {((!mSeason4k &&
-                            request4k?.status ===
-                              MediaRequestStatus.APPROVED) ||
+                            (request4k?.status ===
+                              MediaRequestStatus.APPROVED ||
+                              request4k?.status ===
+                                MediaRequestStatus.COMPLETED)) ||
                             mSeason4k?.status4k === MediaStatus.PROCESSING) &&
                             show4k && (
                               <>
