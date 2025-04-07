@@ -1,13 +1,7 @@
 import TautulliAPI from '@server/api/tautulli';
-import {
-  MediaRequestStatus,
-  MediaStatus,
-  MediaType,
-} from '@server/constants/media';
+import { MediaStatus, MediaType } from '@server/constants/media';
 import { getRepository } from '@server/datasource';
 import Media from '@server/entity/Media';
-import MediaRequest from '@server/entity/MediaRequest';
-import SeasonRequest from '@server/entity/SeasonRequest';
 import { User } from '@server/entity/User';
 import type {
   MediaResultsResponse,
@@ -104,8 +98,6 @@ mediaRoutes.post<
   isAuthenticated(Permission.MANAGE_REQUESTS),
   async (req, res, next) => {
     const mediaRepository = getRepository(Media);
-    const requestRepository = getRepository(MediaRequest);
-    const seasonRequestRepository = getRepository(SeasonRequest);
 
     const media = await mediaRepository.findOne({
       where: { id: Number(req.params.id) },
@@ -144,35 +136,6 @@ mediaRoutes.post<
         break;
       case 'unknown':
         media.status = MediaStatus.UNKNOWN;
-    }
-
-    if (req.params.status === 'available') {
-      // Here we check all related media requests and
-      // then set to completed if the media is marked
-      // as available
-      const requests = await requestRepository.find({
-        relations: {
-          media: true,
-        },
-        where: { media: { id: media.id }, is4k: is4k },
-      });
-
-      const requestIds = requests.map((request) => request.id);
-
-      if (requestIds.length > 0) {
-        await requestRepository.update(
-          { id: In(requestIds) },
-          { status: MediaRequestStatus.COMPLETED }
-        );
-      }
-
-      requests
-        .flatMap((request) => request.seasons)
-        .forEach(async (season) => {
-          await seasonRequestRepository.update(season.id, {
-            status: MediaRequestStatus.COMPLETED,
-          });
-        });
     }
 
     await mediaRepository.save(media);

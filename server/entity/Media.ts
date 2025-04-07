@@ -319,30 +319,36 @@ class Media {
   public async updateRelatedMediaRequest(): Promise<void> {
     const requestRepository = getRepository(MediaRequest);
 
-    const relatedRequests = await requestRepository.find({
-      relations: {
-        media: true,
-      },
-      where: {
-        media: { id: this.id },
-        status: MediaRequestStatus.APPROVED,
-      },
-    });
-
-    // Check the media entity status and if
-    // available or deleted, set the related request
-    // to completed
-    if (relatedRequests.length > 0) {
-      relatedRequests.forEach((request) => {
-        if (
-          this[request.is4k ? 'status4k' : 'status'] ===
-            MediaStatus.AVAILABLE ||
-          this[request.is4k ? 'status4k' : 'status'] === MediaStatus.DELETED
-        ) {
-          request.status = MediaRequestStatus.COMPLETED;
-        }
+    if (
+      this.status === MediaStatus.AVAILABLE ||
+      this.status === MediaStatus.DELETED ||
+      this.status4k === MediaStatus.AVAILABLE ||
+      this.status4k === MediaStatus.DELETED
+    ) {
+      const relatedRequests = await requestRepository.find({
+        relations: {
+          media: true,
+        },
+        where: {
+          media: { id: this.id },
+          status: MediaRequestStatus.APPROVED,
+        },
       });
-      requestRepository.save(relatedRequests);
+
+      // Check the media entity status and if available
+      // or deleted, set the related request to completed
+      if (relatedRequests.length > 0) {
+        relatedRequests.forEach((request) => {
+          if (
+            this[request.is4k ? 'status4k' : 'status'] ===
+              MediaStatus.AVAILABLE ||
+            this[request.is4k ? 'status4k' : 'status'] === MediaStatus.DELETED
+          ) {
+            request.status = MediaRequestStatus.COMPLETED;
+          }
+        });
+        requestRepository.save(relatedRequests);
+      }
     }
   }
 }
