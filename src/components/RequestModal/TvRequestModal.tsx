@@ -342,7 +342,8 @@ const TvRequestModal = ({
       (data.mediaInfo.requests || []).filter(
         (request) =>
           request.is4k === is4k &&
-          request.status !== MediaRequestStatus.DECLINED
+          request.status !== MediaRequestStatus.DECLINED &&
+          request.status !== MediaRequestStatus.COMPLETED
       ).length > 0
     ) {
       data.mediaInfo.requests
