@@ -16,7 +16,10 @@ export class MediaRequestSubscriber
   implements EntitySubscriberInterface<MediaRequest>
 {
   private async notifyAvailableMovie(entity: MediaRequest) {
-    if (entity.media.status === MediaStatus.AVAILABLE) {
+    if (
+      entity.media[entity.is4k ? 'status4k' : 'status'] ===
+      MediaStatus.AVAILABLE
+    ) {
       const tmdb = new TheMovieDb();
 
       try {
@@ -66,7 +69,11 @@ export class MediaRequestSubscriber
         )
       );
 
-    if (entity.media.status === MediaStatus.AVAILABLE || isMediaAvailable) {
+    if (
+      entity.media[entity.is4k ? 'status4k' : 'status'] ===
+        MediaStatus.AVAILABLE ||
+      isMediaAvailable
+    ) {
       const tmdb = new TheMovieDb();
 
       try {
