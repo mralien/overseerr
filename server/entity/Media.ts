@@ -6,6 +6,7 @@ import {
   MediaType,
 } from '@server/constants/media';
 import { getRepository } from '@server/datasource';
+import SeasonRequest from '@server/entity/SeasonRequest';
 import type { DownloadingItem } from '@server/lib/downloadtracker';
 import downloadTracker from '@server/lib/downloadtracker';
 import { getSettings } from '@server/lib/settings';
@@ -318,12 +319,17 @@ class Media {
   @AfterUpdate()
   public async updateRelatedMediaRequest(): Promise<void> {
     const requestRepository = getRepository(MediaRequest);
+    const seasonRequestRepository = getRepository(SeasonRequest);
+
+    const validStatuses = [
+      MediaStatus.PARTIALLY_AVAILABLE,
+      MediaStatus.AVAILABLE,
+      MediaStatus.DELETED,
+    ];
 
     if (
-      this.status === MediaStatus.AVAILABLE ||
-      this.status === MediaStatus.DELETED ||
-      this.status4k === MediaStatus.AVAILABLE ||
-      this.status4k === MediaStatus.DELETED
+      validStatuses.includes(this.status) ||
+      validStatuses.includes(this.status4k)
     ) {
       const relatedRequests = await requestRepository.find({
         relations: {
@@ -338,16 +344,79 @@ class Media {
       // Check the media entity status and if available
       // or deleted, set the related request to completed
       if (relatedRequests.length > 0) {
+        const completedRequests: MediaRequest[] = [];
+
         relatedRequests.forEach((request) => {
+          let shouldComplete = false;
+
           if (
             this[request.is4k ? 'status4k' : 'status'] ===
               MediaStatus.AVAILABLE ||
             this[request.is4k ? 'status4k' : 'status'] === MediaStatus.DELETED
           ) {
+            shouldComplete = true;
+          } else if (this.mediaType === 'tv') {
+            // For TV, check if all requested seasons are available or deleted
+            const allSeasonsReady = request.seasons.every((requestSeason) => {
+              const matchingSeason = this.seasons.find(
+                (mediaSeason) =>
+                  mediaSeason.seasonNumber === requestSeason.seasonNumber
+              );
+
+              if (!matchingSeason) {
+                return false;
+              }
+
+              return (
+                matchingSeason[request.is4k ? 'status4k' : 'status'] ===
+                  MediaStatus.AVAILABLE ||
+                matchingSeason[request.is4k ? 'status4k' : 'status'] ===
+                  MediaStatus.DELETED
+              );
+            });
+
+            shouldComplete = allSeasonsReady;
+          }
+
+          if (shouldComplete) {
             request.status = MediaRequestStatus.COMPLETED;
+            completedRequests.push(request);
           }
         });
-        requestRepository.save(relatedRequests);
+
+        await requestRepository.save(completedRequests);
+
+        // Handle season requests and mark them completed when
+        // that specific season becomes available
+        if (this.mediaType === 'tv') {
+          const seasonsToUpdate = relatedRequests.flatMap((request) => {
+            return request.seasons.filter((requestSeason) => {
+              const matchingSeason = this.seasons.find(
+                (mediaSeason) =>
+                  mediaSeason.seasonNumber === requestSeason.seasonNumber
+              );
+
+              if (!matchingSeason) {
+                return false;
+              }
+
+              return (
+                matchingSeason[request.is4k ? 'status4k' : 'status'] ===
+                  MediaStatus.AVAILABLE ||
+                matchingSeason[request.is4k ? 'status4k' : 'status'] ===
+                  MediaStatus.DELETED
+              );
+            });
+          });
+
+          await Promise.all(
+            seasonsToUpdate.map((season) =>
+              seasonRequestRepository.update(season.id, {
+                status: MediaRequestStatus.COMPLETED,
+              })
+            )
+          );
+        }
       }
     }
   }

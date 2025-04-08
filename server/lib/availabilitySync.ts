@@ -247,7 +247,7 @@ class AvailabilitySync {
 
     try {
       // If media type is tv, check if a season is processing
-      //to see if we need to keep the external metadata
+      // to see if we need to keep the external metadata
       let isMediaProcessing = false;
 
       if (media.mediaType === 'tv') {
@@ -386,44 +386,44 @@ class AvailabilitySync {
 
     // Check for availability in all of the available radarr servers
     // If any find the media, we will assume the media exists
-    for (const server of this.radarrServers) {
-      if (server.is4k === is4k) {
-        const radarrAPI = new RadarrAPI({
-          apiKey: server.apiKey,
-          url: RadarrAPI.buildUrl(server, '/api/v3'),
-        });
+    for (const server of this.radarrServers.filter(
+      (server) => server.is4k === is4k
+    )) {
+      const radarrAPI = new RadarrAPI({
+        apiKey: server.apiKey,
+        url: RadarrAPI.buildUrl(server, '/api/v3'),
+      });
 
-        try {
-          let radarr: RadarrMovie | undefined;
+      try {
+        let radarr: RadarrMovie | undefined;
 
-          if (media.externalServiceId && !is4k) {
-            radarr = await radarrAPI.getMovie({
-              id: media.externalServiceId,
-            });
-          }
+        if (media.externalServiceId && !is4k) {
+          radarr = await radarrAPI.getMovie({
+            id: media.externalServiceId,
+          });
+        }
 
-          if (media.externalServiceId4k && is4k) {
-            radarr = await radarrAPI.getMovie({
-              id: media.externalServiceId4k,
-            });
-          }
+        if (media.externalServiceId4k && is4k) {
+          radarr = await radarrAPI.getMovie({
+            id: media.externalServiceId4k,
+          });
+        }
 
-          if (radarr && radarr.hasFile) {
-            existsInRadarr = true;
-          }
-        } catch (ex) {
-          if (!ex.message.includes('404')) {
-            existsInRadarr = true;
-            logger.debug(
-              `Failure retrieving the ${
-                is4k ? '4K' : 'non-4K'
-              } movie [TMDB ID ${media.tmdbId}] from Radarr.`,
-              {
-                errorMessage: ex.message,
-                label: 'AvailabilitySync',
-              }
-            );
-          }
+        if (radarr && radarr.hasFile) {
+          existsInRadarr = true;
+        }
+      } catch (ex) {
+        if (!ex.message.includes('404')) {
+          existsInRadarr = true;
+          logger.debug(
+            `Failure retrieving the ${is4k ? '4K' : 'non-4K'} movie [TMDB ID ${
+              media.tmdbId
+            }] from Radarr.`,
+            {
+              errorMessage: ex.message,
+              label: 'AvailabilitySync',
+            }
+          );
         }
       }
     }
@@ -440,46 +440,45 @@ class AvailabilitySync {
 
     // Check for availability in all of the available sonarr servers
     // If any find the media, we will assume the media exists
-    for (const server of this.sonarrServers) {
-      if (server.is4k === is4k) {
-        const sonarrAPI = new SonarrAPI({
-          apiKey: server.apiKey,
-          url: SonarrAPI.buildUrl(server, '/api/v3'),
-        });
+    for (const server of this.sonarrServers.filter((server) => {
+      return server.is4k === is4k;
+    })) {
+      const sonarrAPI = new SonarrAPI({
+        apiKey: server.apiKey,
+        url: SonarrAPI.buildUrl(server, '/api/v3'),
+      });
 
-        try {
-          let sonarr: SonarrSeries | undefined;
+      try {
+        let sonarr: SonarrSeries | undefined;
 
-          if (media.externalServiceId && !is4k) {
-            sonarr = await sonarrAPI.getSeriesById(media.externalServiceId);
-            this.sonarrSeasonsCache[`${server.id}-${media.externalServiceId}`] =
-              sonarr.seasons;
-          }
+        if (media.externalServiceId && !is4k) {
+          sonarr = await sonarrAPI.getSeriesById(media.externalServiceId);
+          this.sonarrSeasonsCache[`${server.id}-${media.externalServiceId}`] =
+            sonarr.seasons;
+        }
 
-          if (media.externalServiceId4k && is4k) {
-            sonarr = await sonarrAPI.getSeriesById(media.externalServiceId4k);
-            this.sonarrSeasonsCache[
-              `${server.id}-${media.externalServiceId4k}`
-            ] = sonarr.seasons;
-          }
+        if (media.externalServiceId4k && is4k) {
+          sonarr = await sonarrAPI.getSeriesById(media.externalServiceId4k);
+          this.sonarrSeasonsCache[`${server.id}-${media.externalServiceId4k}`] =
+            sonarr.seasons;
+        }
 
-          if (sonarr && sonarr.statistics.episodeFileCount > 0) {
-            existsInSonarr = true;
-          }
-        } catch (ex) {
-          if (!ex.message.includes('404')) {
-            existsInSonarr = true;
-            preventSeasonSearch = true;
-            logger.debug(
-              `Failure retrieving the ${is4k ? '4K' : 'non-4K'} show [TMDB ID ${
-                media.tmdbId
-              }] from Sonarr.`,
-              {
-                errorMessage: ex.message,
-                label: 'AvailabilitySync',
-              }
-            );
-          }
+        if (sonarr && sonarr.statistics.episodeFileCount > 0) {
+          existsInSonarr = true;
+        }
+      } catch (ex) {
+        if (!ex.message.includes('404')) {
+          existsInSonarr = true;
+          preventSeasonSearch = true;
+          logger.debug(
+            `Failure retrieving the ${is4k ? '4K' : 'non-4K'} show [TMDB ID ${
+              media.tmdbId
+            }] from Sonarr.`,
+            {
+              errorMessage: ex.message,
+              label: 'AvailabilitySync',
+            }
+          );
         }
       }
     }
@@ -523,7 +522,9 @@ class AvailabilitySync {
     // Check each sonarr instance to see if the media still exists
     // If found, we will assume the media exists and prevent removal
     // We can use the cache we built when we fetched the series with mediaExistsInSonarr
-    for (const server of this.sonarrServers) {
+    for (const server of this.sonarrServers.filter(
+      (server) => server.is4k === is4k
+    )) {
       let sonarrSeasons: SonarrSeason[] | undefined;
 
       if (media.externalServiceId && !is4k) {

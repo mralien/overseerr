@@ -584,8 +584,6 @@ const TvDetails = ({ tv }: TvDetailsProps) => {
                   return null;
                 }
 
-                console.log({ request });
-
                 return (
                   <Disclosure key={`season-discoslure-${season.seasonNumber}`}>
                     {({ open }) => (

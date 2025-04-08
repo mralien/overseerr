@@ -1,9 +1,5 @@
-import { MediaRequestStatus, MediaStatus } from '@server/constants/media';
-import { getRepository } from '@server/datasource';
-import SeasonRequest from '@server/entity/SeasonRequest';
+import { MediaStatus } from '@server/constants/media';
 import {
-  AfterInsert,
-  AfterUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -38,45 +34,6 @@ class Season {
 
   constructor(init?: Partial<Season>) {
     Object.assign(this, init);
-  }
-
-  @AfterInsert()
-  @AfterUpdate()
-  public async updateSeasonRequests(): Promise<void> {
-    const seasonRequestRepository = getRepository(SeasonRequest);
-
-    if (
-      this.status === MediaStatus.AVAILABLE ||
-      this.status === MediaStatus.DELETED ||
-      this.status4k === MediaStatus.AVAILABLE ||
-      this.status4k === MediaStatus.DELETED
-    ) {
-      const relatedSeasonRequests = await seasonRequestRepository.find({
-        relations: {
-          request: true,
-        },
-        where: {
-          request: { media: { id: (await this.media).id } },
-          seasonNumber: this.seasonNumber,
-        },
-      });
-
-      // Check seasons when/if they become available or deleted,
-      // then set the related season request to completed
-      relatedSeasonRequests.forEach((seasonRequest) => {
-        if (
-          this.seasonNumber === seasonRequest.seasonNumber &&
-          ((!seasonRequest.request.is4k &&
-            (this.status === MediaStatus.AVAILABLE ||
-              this.status === MediaStatus.DELETED)) ||
-            (seasonRequest.request.is4k &&
-              this.status4k === MediaStatus.AVAILABLE) ||
-            this.status4k === MediaStatus.DELETED)
-        )
-          seasonRequest.status = MediaRequestStatus.COMPLETED;
-      });
-      seasonRequestRepository.save(relatedSeasonRequests);
-    }
   }
 }
 
