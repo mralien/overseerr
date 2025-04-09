@@ -444,7 +444,9 @@ class AvailabilitySync {
 
     // Check for availability in all of the available radarr servers
     // If any find the media, we will assume the media exists
-    for (const server of this.radarrServers) {
+    for (const server of this.radarrServers.filter(
+      (server) => server.is4k === is4k
+    )) {
       const radarrAPI = new RadarrAPI({
         apiKey: server.apiKey,
         url: RadarrAPI.buildUrl(server, '/api/v3'),
@@ -496,7 +498,9 @@ class AvailabilitySync {
 
     // Check for availability in all of the available sonarr servers
     // If any find the media, we will assume the media exists
-    for (const server of this.sonarrServers) {
+    for (const server of this.sonarrServers.filter((server) => {
+      return server.is4k === is4k;
+    })) {
       const sonarrAPI = new SonarrAPI({
         apiKey: server.apiKey,
         url: SonarrAPI.buildUrl(server, '/api/v3'),
@@ -505,13 +509,13 @@ class AvailabilitySync {
       try {
         let sonarr: SonarrSeries | undefined;
 
-        if (!server.is4k && media.externalServiceId && !is4k) {
+        if (media.externalServiceId && !is4k) {
           sonarr = await sonarrAPI.getSeriesById(media.externalServiceId);
           this.sonarrSeasonsCache[`${server.id}-${media.externalServiceId}`] =
             sonarr.seasons;
         }
 
-        if (server.is4k && media.externalServiceId4k && is4k) {
+        if (media.externalServiceId4k && is4k) {
           sonarr = await sonarrAPI.getSeriesById(media.externalServiceId4k);
           this.sonarrSeasonsCache[`${server.id}-${media.externalServiceId4k}`] =
             sonarr.seasons;
@@ -576,7 +580,9 @@ class AvailabilitySync {
     // Check each sonarr instance to see if the media still exists
     // If found, we will assume the media exists and prevent removal
     // We can use the cache we built when we fetched the series with mediaExistsInSonarr
-    for (const server of this.sonarrServers) {
+    for (const server of this.sonarrServers.filter((server) => {
+      return server.is4k === is4k;
+    })) {
       let sonarrSeasons: SonarrSeason[] | undefined;
 
       if (media.externalServiceId && !is4k) {
