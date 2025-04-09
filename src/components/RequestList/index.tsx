@@ -35,6 +35,7 @@ enum Filter {
   UNAVAILABLE = 'unavailable',
   FAILED = 'failed',
   DELETED = 'deleted',
+  COMPLETED = 'completed',
 }
 
 type Sort = 'added' | 'modified';
@@ -165,6 +166,9 @@ const RequestList = () => {
               </option>
               <option value="approved">
                 {intl.formatMessage(globalMessages.approved)}
+              </option>
+              <option value="completed">
+                {intl.formatMessage(globalMessages.completed)}
               </option>
               <option value="processing">
                 {intl.formatMessage(globalMessages.processing)}

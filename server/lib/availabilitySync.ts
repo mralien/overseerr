@@ -31,7 +31,7 @@ class AvailabilitySync {
 
     try {
       logger.info(`Starting availability sync...`, {
-        label: 'AvailabilitySync',
+        label: 'Availability Sync',
       });
       const pageSize = 50;
 
@@ -73,7 +73,7 @@ class AvailabilitySync {
             logger.info(
               `The non-4K movie [TMDB ID ${media.tmdbId}] still exists. Preventing removal.`,
               {
-                label: 'AvailabilitySync',
+                label: 'Availability Sync',
               }
             );
           }
@@ -83,7 +83,7 @@ class AvailabilitySync {
             logger.info(
               `The 4K movie [TMDB ID ${media.tmdbId}] still exists. Preventing removal.`,
               {
-                label: 'AvailabilitySync',
+                label: 'Availability Sync',
               }
             );
           }
@@ -122,7 +122,7 @@ class AvailabilitySync {
             logger.info(
               `The non-4K show [TMDB ID ${media.tmdbId}] still exists. Preventing removal.`,
               {
-                label: 'AvailabilitySync',
+                label: 'Availability Sync',
               }
             );
           }
@@ -132,7 +132,7 @@ class AvailabilitySync {
             logger.info(
               `The 4K show [TMDB ID ${media.tmdbId}] still exists. Preventing removal.`,
               {
-                label: 'AvailabilitySync',
+                label: 'Availability Sync',
               }
             );
           }
@@ -206,11 +206,11 @@ class AvailabilitySync {
     } catch (ex) {
       logger.error('Failed to complete availability sync.', {
         errorMessage: ex.message,
-        label: 'AvailabilitySync',
+        label: 'Availability Sync',
       });
     } finally {
       logger.info(`Availability sync complete.`, {
-        label: 'AvailabilitySync',
+        label: 'Availability Sync',
       });
       this.running = false;
     }
@@ -298,7 +298,7 @@ class AvailabilitySync {
         } [TMDB ID ${media.tmdbId}] was not found in any ${
           media.mediaType === 'movie' ? 'Radarr' : 'Sonarr'
         } and Plex instance. Status will be changed to deleted.`,
-        { label: 'AvailabilitySync' }
+        { label: 'Availability Sync' }
       );
 
       await mediaRepository.save({ media, ...media });
@@ -309,7 +309,7 @@ class AvailabilitySync {
         } [TMDB ID ${media.tmdbId}].`,
         {
           errorMessage: ex.message,
-          label: 'AvailabilitySync',
+          label: 'Availability Sync',
         }
       );
     }
@@ -343,7 +343,7 @@ class AvailabilitySync {
         media.status = MediaStatus.PARTIALLY_AVAILABLE;
         logger.info(
           `Marking the non-4K show [TMDB ID ${media.tmdbId}] as PARTIALLY_AVAILABLE because season removal has occurred.`,
-          { label: 'AvailabilitySync' }
+          { label: 'Availability Sync' }
         );
       }
 
@@ -351,7 +351,7 @@ class AvailabilitySync {
         media.status4k = MediaStatus.PARTIALLY_AVAILABLE;
         logger.info(
           `Marking the 4K show [TMDB ID ${media.tmdbId}] as PARTIALLY_AVAILABLE because season removal has occurred.`,
-          { label: 'AvailabilitySync' }
+          { label: 'Availability Sync' }
         );
       }
 
@@ -363,7 +363,7 @@ class AvailabilitySync {
         }] was not found in any ${
           media.mediaType === 'tv' ? 'Sonarr' : 'Radarr'
         } and Plex instance. Status will be changed to deleted.`,
-        { label: 'AvailabilitySync' }
+        { label: 'Availability Sync' }
       );
     } catch (ex) {
       logger.debug(
@@ -372,7 +372,7 @@ class AvailabilitySync {
         } season(s) [${seasonKeys}], TMDB ID ${media.tmdbId}.`,
         {
           errorMessage: ex.message,
-          label: 'AvailabilitySync',
+          label: 'Availability Sync',
         }
       );
     }
@@ -421,7 +421,7 @@ class AvailabilitySync {
             }] from Radarr.`,
             {
               errorMessage: ex.message,
-              label: 'AvailabilitySync',
+              label: 'Availability Sync',
             }
           );
         }
@@ -476,7 +476,7 @@ class AvailabilitySync {
             }] from Sonarr.`,
             {
               errorMessage: ex.message,
-              label: 'AvailabilitySync',
+              label: 'Availability Sync',
             }
           );
         }
@@ -598,7 +598,7 @@ class AvailabilitySync {
           } [TMDB ID ${media.tmdbId}] from Plex.`,
           {
             errorMessage: ex.message,
-            label: 'AvailabilitySync',
+            label: 'Availability Sync',
           }
         );
       }
