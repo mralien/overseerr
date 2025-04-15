@@ -1,13 +1,7 @@
-import {
-  MediaRequestStatus,
-  MediaStatus,
-  MediaType,
-} from '@server/constants/media';
+import { MediaRequestStatus, MediaStatus } from '@server/constants/media';
 import { getRepository } from '@server/datasource';
 import Media from '@server/entity/Media';
 import { MediaRequest } from '@server/entity/MediaRequest';
-import Season from '@server/entity/Season';
-import SeasonRequest from '@server/entity/SeasonRequest';
 import type { EntitySubscriberInterface, UpdateEvent } from 'typeorm';
 import { EventSubscriber } from 'typeorm';
 

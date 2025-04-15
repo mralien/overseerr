@@ -3,7 +3,6 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import {
   BellIcon,
   ClockIcon,
-  EyeSlashIcon,
   MinusSmallIcon,
   TrashIcon,
 } from '@heroicons/react/24/solid';

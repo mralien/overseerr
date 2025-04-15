@@ -1,6 +1,12 @@
 import { MediaRequestStatus } from '@server/constants/media';
-import { DbAwareColumn } from '@server/utils/DbColumnHelper';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { MediaRequest } from './MediaRequest';
 
 @Entity()

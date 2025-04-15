@@ -358,24 +358,16 @@ const CollectionRequestModal = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {data?.parts
-                    .filter((part) => {
-                      if (!blacklistVisibility)
-                        return (
-                          part.mediaInfo?.status !== MediaStatus.BLACKLISTED
-                        );
-                      return part;
-                    })
-                    .map((part) => {
-                      const partRequest = getPartRequest(part.id);
-                      const partMedia =
-                        part.mediaInfo &&
-                        part.mediaInfo[is4k ? 'status4k' : 'status'] !==
-                          MediaStatus.UNKNOWN &&
-                        part.mediaInfo[is4k ? 'status4k' : 'status'] !==
-                          MediaStatus.DELETED
-                          ? part.mediaInfo
-                          : undefined;
+                  {data?.parts.map((part) => {
+                    const partRequest = getPartRequest(part.id);
+                    const partMedia =
+                      part.mediaInfo &&
+                      part.mediaInfo[is4k ? 'status4k' : 'status'] !==
+                        MediaStatus.UNKNOWN &&
+                      part.mediaInfo[is4k ? 'status4k' : 'status'] !==
+                        MediaStatus.DELETED
+                        ? part.mediaInfo
+                        : undefined;
 
                       return (
                         <tr key={`part-${part.id}`}>
