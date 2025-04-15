@@ -500,7 +500,7 @@ class AvailabilitySync {
         { label: 'Availability Sync' }
       );
 
-      await mediaRepository.save({ media, ...media });
+      await mediaRepository.save(media);
     } catch (ex) {
       logger.debug(
         `Failure updating the ${is4k ? '4K' : 'non-4K'} ${
@@ -555,7 +555,7 @@ class AvailabilitySync {
         );
       }
 
-      await mediaRepository.save({ media, ...media });
+      await mediaRepository.save(media);
 
       logger.info(
         `The ${is4k ? '4K' : 'non-4K'} season(s) [${seasonKeys}] [TMDB ID ${
