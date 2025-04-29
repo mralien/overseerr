@@ -181,7 +181,8 @@ export class MediaRequest {
       // If there is an existing movie request that isn't declined, don't allow a new one.
       if (
         requestBody.mediaType === MediaType.MOVIE &&
-        existing[0].status !== MediaRequestStatus.DECLINED
+        existing[0].status !== MediaRequestStatus.DECLINED &&
+        existing[0].status !== MediaRequestStatus.COMPLETED
       ) {
         logger.warn('Duplicate request for media blocked', {
           tmdbId: tmdbMedia.id,
@@ -388,7 +389,9 @@ export class MediaRequest {
       >;
       let requestedSeasons =
         requestBody.seasons === 'all'
-          ? tmdbMediaShow.seasons.map((season) => season.season_number)
+          ? tmdbMediaShow.seasons
+              .filter((season) => season.season_number !== 0)
+              .map((season) => season.season_number)
           : (requestBody.seasons as number[]);
       if (!settings.main.enableSpecialEpisodes) {
         requestedSeasons = requestedSeasons.filter((sn) => sn > 0);
@@ -404,7 +407,8 @@ export class MediaRequest {
           .filter(
             (request) =>
               request.is4k === requestBody.is4k &&
-              request.status !== MediaRequestStatus.DECLINED
+              request.status !== MediaRequestStatus.DECLINED &&
+              request.status !== MediaRequestStatus.COMPLETED
           )
           .reduce((seasons, request) => {
             const combinedSeasons = request.seasons.map(
@@ -423,7 +427,9 @@ export class MediaRequest {
             .filter(
               (season) =>
                 season[requestBody.is4k ? 'status4k' : 'status'] !==
-                MediaStatus.UNKNOWN
+                  MediaStatus.UNKNOWN &&
+                season[requestBody.is4k ? 'status4k' : 'status'] !==
+                  MediaStatus.DELETED
             )
             .map((season) => season.seasonNumber),
         ];
@@ -732,7 +738,8 @@ export class MediaRequest {
 
     if (
       media.mediaType === MediaType.MOVIE &&
-      this.status === MediaRequestStatus.DECLINED
+      this.status === MediaRequestStatus.DECLINED &&
+      media[this.is4k ? 'status4k' : 'status'] !== MediaStatus.DELETED
     ) {
       const statusField = this.is4k ? 'status4k' : 'status';
       await mediaRepository.update(
@@ -753,7 +760,8 @@ export class MediaRequest {
       media.requests.filter(
         (request) => request.status === MediaRequestStatus.PENDING
       ).length === 0 &&
-      media[this.is4k ? 'status4k' : 'status'] === MediaStatus.PENDING
+      media[this.is4k ? 'status4k' : 'status'] === MediaStatus.PENDING &&
+      media[this.is4k ? 'status4k' : 'status'] !== MediaStatus.DELETED
     ) {
       const statusField = this.is4k ? 'status4k' : 'status';
       mediaRepository.update(
