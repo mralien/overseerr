@@ -570,7 +570,11 @@ const TvRequestModal = ({
                 </thead>
                 <tbody className="divide-y divide-gray-700">
                   {data?.seasons
-                    .filter((season) => season.episodeCount !== 0)
+                    .filter((season) =>
+                      !settings.currentSettings.partialRequestsEnabled
+                        ? season.episodeCount !== 0 && season.seasonNumber !== 0
+                        : season.episodeCount !== 0
+                    )
                     .map((season) => {
                       const seasonRequest = getSeasonRequest(
                         season.seasonNumber
