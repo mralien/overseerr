@@ -1,6 +1,4 @@
 import TheMovieDb from '@server/api/themoviedb';
-import { ANIME_KEYWORD_ID } from '@server/api/themoviedb/constants';
-import type { TmdbKeyword } from '@server/api/themoviedb/interfaces';
 import {
   MediaRequestStatus,
   MediaStatus,
@@ -11,13 +9,10 @@ import OverrideRule from '@server/entity/OverrideRule';
 import type { MediaRequestBody } from '@server/interfaces/api/requestInterfaces';
 import notificationManager, { Notification } from '@server/lib/notifications';
 import { Permission } from '@server/lib/permissions';
-import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
-import { DbAwareColumn } from '@server/utils/DbColumnHelper';
 import { truncate } from 'lodash';
 import {
   AfterInsert,
-  AfterLoad,
   AfterUpdate,
   Column,
   Entity,
@@ -699,74 +694,6 @@ export class MediaRequest {
   public async autoapprovalNotification(): Promise<void> {
     if (this.status === MediaRequestStatus.APPROVED) {
       this.notifyApprovedOrDeclined(true);
-    }
-  }
-
-  @AfterUpdate()
-  @AfterInsert()
-  public async updateParentStatus(): Promise<void> {
-    const mediaRepository = getRepository(Media);
-    const media = await mediaRepository.findOne({
-      where: { id: this.media.id },
-      relations: { requests: true },
-    });
-    if (!media) {
-      logger.error('Media data not found', {
-        label: 'Media Request',
-        requestId: this.id,
-        mediaId: this.media.id,
-      });
-      return;
-    }
-    const seasonRequestRepository = getRepository(SeasonRequest);
-    if (
-      this.status === MediaRequestStatus.APPROVED &&
-      // Do not update the status if the item is already partially available or available
-      media[this.is4k ? 'status4k' : 'status'] !== MediaStatus.AVAILABLE &&
-      media[this.is4k ? 'status4k' : 'status'] !==
-        MediaStatus.PARTIALLY_AVAILABLE
-    ) {
-      media[this.is4k ? 'status4k' : 'status'] = MediaStatus.PROCESSING;
-      mediaRepository.save(media);
-    }
-
-    if (
-      media.mediaType === MediaType.MOVIE &&
-      this.status === MediaRequestStatus.DECLINED &&
-      media[this.is4k ? 'status4k' : 'status'] !== MediaStatus.DELETED
-    ) {
-      media[this.is4k ? 'status4k' : 'status'] = MediaStatus.UNKNOWN;
-      mediaRepository.save(media);
-    }
-
-    /**
-     * If the media type is TV, and we are declining a request,
-     * we must check if its the only pending request and that
-     * there the current media status is just pending (meaning no
-     * other requests have yet to be approved)
-     */
-    if (
-      media.mediaType === MediaType.TV &&
-      this.status === MediaRequestStatus.DECLINED &&
-      media.requests.filter(
-        (request) => request.status === MediaRequestStatus.PENDING
-      ).length === 0 &&
-      media[this.is4k ? 'status4k' : 'status'] === MediaStatus.PENDING &&
-      media[this.is4k ? 'status4k' : 'status'] !== MediaStatus.DELETED
-    ) {
-      media[this.is4k ? 'status4k' : 'status'] = MediaStatus.UNKNOWN;
-      mediaRepository.save(media);
-    }
-
-    // Approve child seasons if parent is approved
-    if (
-      media.mediaType === MediaType.TV &&
-      this.status === MediaRequestStatus.APPROVED
-    ) {
-      this.seasons.forEach((season) => {
-        season.status = MediaRequestStatus.APPROVED;
-        seasonRequestRepository.save(season);
-      });
     }
   }
 

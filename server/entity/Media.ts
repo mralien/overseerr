@@ -103,7 +103,7 @@ class Media {
   public status4k: MediaStatus;
 
   @OneToMany(() => MediaRequest, (request) => request.media, {
-    cascade: ['insert', 'remove'],
+    cascade: ['insert', 'update'],
   })
   public requests: MediaRequest[];
 
