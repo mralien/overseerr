@@ -1,0 +1,163 @@
+import type { UserPushSubscription } from '@server/entity/UserPushSubscription';
+import type { PublicSettingsResponse } from '@server/interfaces/api/settingsInterfaces';
+import axios from 'axios';
+
+// Taken from https://www.npmjs.com/package/web-push
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = `${base64String}${padding}`
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i)
+    outputArray[i] = rawData.charCodeAt(i);
+
+  return outputArray;
+}
+
+export const verifyPushSubscription = async (
+  userId: number | undefined,
+  currentSettings: PublicSettingsResponse
+): Promise<boolean> => {
+  if (!('serviceWorker' in navigator) || !userId) {
+    return false;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration(
+      '/sw.js'
+    );
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) {
+      return false;
+    }
+
+    const appServerKey = subscription.options?.applicationServerKey;
+    if (!(appServerKey instanceof ArrayBuffer)) {
+      return false;
+    }
+
+    const currentServerKey = new Uint8Array(appServerKey).toString();
+    const expectedServerKey = urlBase64ToUint8Array(
+      currentSettings.vapidPublic
+    ).toString();
+
+    const endpoint = subscription.endpoint;
+
+    const { data } = await axios.get<UserPushSubscription>(
+      `/api/v1/user/${userId}/pushSubscription/${encodeURIComponent(endpoint)}`
+    );
+
+    return expectedServerKey === currentServerKey && data.endpoint === endpoint;
+  } catch (err) {
+    console.warn('[SW] verifyPushSubscription failed:', err);
+    return false;
+  }
+};
+
+export const verifyAndResubscribePushSubscription = async (
+  userId: number | undefined,
+  currentSettings: PublicSettingsResponse
+): Promise<boolean> => {
+  const isValid = await verifyPushSubscription(userId, currentSettings);
+
+  if (isValid) {
+    return true;
+  }
+
+  if (currentSettings.enablePushRegistration) {
+    try {
+      await unsubscribeToPushNotifications(userId);
+      await subscribeToPushNotifications(userId, currentSettings);
+      return true;
+    } catch (err) {
+      console.error('[SW] Resubscribe failed:', err);
+    }
+  }
+
+  return false;
+};
+
+export const subscribeToPushNotifications = async (
+  userId: number | undefined,
+  currentSettings: PublicSettingsResponse
+) => {
+  if (
+    !('serviceWorker' in navigator) ||
+    !userId ||
+    !currentSettings.enablePushRegistration
+  ) {
+    return false;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration(
+      '/sw.js'
+    );
+    if (!registration) {
+      return false;
+    }
+
+    const sub = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: currentSettings.vapidPublic,
+    });
+
+    const { endpoint, keys } = JSON.parse(JSON.stringify(sub));
+
+    if (keys?.p256dh && keys?.auth) {
+      await axios.post('/api/v1/user/registerPushSubscription', {
+        endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+        userAgent: navigator.userAgent,
+      });
+
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.log('Issue subscribing to push notifications: ', { error });
+  }
+};
+
+export const unsubscribeToPushNotifications = async (
+  userId: number | undefined,
+  endpoint?: string
+) => {
+  if (!('serviceWorker' in navigator) || !userId) {
+    return;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration(
+      '/sw.js'
+    );
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) {
+      return false;
+    }
+
+    const { endpoint: currentEndpoint } = JSON.parse(
+      JSON.stringify(subscription)
+    );
+    const resolvedEndpoint = endpoint ?? currentEndpoint;
+
+    await axios.delete(
+      `/api/v1/user/${userId}/pushSubscription/${encodeURIComponent(
+        resolvedEndpoint
+      )}`
+    );
+
+    if (!endpoint || endpoint === currentEndpoint) {
+      await subscription.unsubscribe();
+      return true;
+    }
+  } catch (error) {
+    console.log('Issue unsubscribing to push notifications: ', { error });
+  }
+};
