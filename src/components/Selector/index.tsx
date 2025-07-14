@@ -313,6 +313,19 @@ export const WatchProviderSelector = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProvider, watchRegion]);
 
+  // Sync internal state with props when they change
+  useEffect(() => {
+    if (activeProviders) {
+      setActiveProvider(activeProviders);
+    }
+  }, [activeProviders]);
+
+  useEffect(() => {
+    if (region) {
+      setWatchRegion(region);
+    }
+  }, [region]);
+
   const orderedData = useMemo(() => {
     if (!data) {
       return [];
