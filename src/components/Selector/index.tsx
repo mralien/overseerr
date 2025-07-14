@@ -315,13 +315,13 @@ export const WatchProviderSelector = ({
 
   // Sync internal state with props when they change
   useEffect(() => {
-    if (activeProviders) {
+    if (activeProviders !== undefined) {
       setActiveProvider(activeProviders);
     }
   }, [activeProviders]);
 
   useEffect(() => {
-    if (region) {
+    if (region !== undefined) {
       setWatchRegion(region);
     }
   }, [region]);
