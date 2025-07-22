@@ -1,7 +1,12 @@
 import TheMovieDb from '@server/api/themoviedb';
-import { MediaStatus, MediaType } from '@server/constants/media';
+import {
+  MediaRequestStatus,
+  MediaStatus,
+  MediaType,
+} from '@server/constants/media';
 import { getRepository } from '@server/datasource';
 import Media from '@server/entity/Media';
+import MediaRequest from '@server/entity/MediaRequest';
 import Season from '@server/entity/Season';
 import { getSettings } from '@server/lib/settings';
 import logger from '@server/logger';
@@ -89,6 +94,16 @@ class BaseScanner<T> {
     return existing;
   }
 
+  private async getExistingRequests(mediaId: number | undefined) {
+    const requestRepository = getRepository(MediaRequest);
+
+    const existing = await requestRepository.find({
+      where: { id: mediaId },
+    });
+
+    return existing;
+  }
+
   protected async processMovie(
     tmdbId: number,
     {
@@ -106,11 +121,18 @@ class BaseScanner<T> {
 
     await this.asyncLock.dispatch(tmdbId, async () => {
       const existing = await this.getExisting(tmdbId, MediaType.MOVIE);
+      const existingRequests = await this.getExistingRequests(existing?.id);
+      const hasPendingRequests = existingRequests
+        .filter((request) => request.is4k === is4k)
+        .some((request) => request.status !== MediaRequestStatus.COMPLETED);
 
       if (existing) {
         let changedExisting = false;
 
-        if (existing[is4k ? 'status4k' : 'status'] !== MediaStatus.AVAILABLE) {
+        if (
+          existing[is4k ? 'status4k' : 'status'] !== MediaStatus.AVAILABLE &&
+          hasPendingRequests
+        ) {
           existing[is4k ? 'status4k' : 'status'] = processing
             ? MediaStatus.PROCESSING
             : MediaStatus.AVAILABLE;
@@ -237,6 +259,13 @@ class BaseScanner<T> {
 
     await this.asyncLock.dispatch(tmdbId, async () => {
       const media = await this.getExisting(tmdbId, MediaType.TV);
+      const existingRequests = await this.getExistingRequests(media?.id);
+      const hasPendingRequests = existingRequests
+        .filter((request) => !request.is4k)
+        .some((request) => request.status !== MediaRequestStatus.COMPLETED);
+      const hasPending4kRequests = existingRequests
+        .filter((request) => request.is4k)
+        .some((request) => request.status !== MediaRequestStatus.COMPLETED);
 
       const newSeasons: Season[] = [];
 
@@ -256,6 +285,25 @@ class BaseScanner<T> {
         const existingSeason = media?.seasons.find(
           (es) => es.seasonNumber === season.seasonNumber
         );
+
+        const hasPendingSeasonRequest = existingRequests
+          .filter((request) => !request.is4k)
+          .some((request) =>
+            request.seasons.some(
+              (season) =>
+                season.status !== MediaRequestStatus.COMPLETED &&
+                season.seasonNumber === existingSeason?.seasonNumber
+            )
+          );
+        const hasPending4kSeasonRequest = existingRequests
+          .filter((request) => request.is4k)
+          .some((request) =>
+            request.seasons.some(
+              (season) =>
+                season.status !== MediaRequestStatus.COMPLETED &&
+                season.seasonNumber === existingSeason?.seasonNumber
+            )
+          );
 
         // We update the rating keys in the seasons loop because we need episode counts
         if (media && season.episodes > 0 && media.ratingKey !== ratingKey) {
@@ -283,10 +331,9 @@ class BaseScanner<T> {
               ? MediaStatus.PARTIALLY_AVAILABLE
               : !season.is4kOverride &&
                 season.processing &&
-                existingSeason.status !== MediaStatus.DELETED
+                hasPendingSeasonRequest
               ? MediaStatus.PROCESSING
               : existingSeason.status;
-
           // Same thing here, except we only do updates if 4k is enabled
           existingSeason.status4k =
             (this.enable4kShow &&
@@ -298,7 +345,7 @@ class BaseScanner<T> {
               ? MediaStatus.PARTIALLY_AVAILABLE
               : season.is4kOverride &&
                 season.processing &&
-                existingSeason.status4k !== MediaStatus.DELETED
+                hasPending4kSeasonRequest
               ? MediaStatus.PROCESSING
               : existingSeason.status4k;
         } else {
@@ -434,7 +481,7 @@ class BaseScanner<T> {
                   season.status === MediaStatus.AVAILABLE
               )
             ? MediaStatus.PARTIALLY_AVAILABLE
-            : (!seasons.length && media.status !== MediaStatus.DELETED) ||
+            : (!seasons.length && hasPendingRequests) ||
               media.seasons.some(
                 (season) => season.status === MediaStatus.PROCESSING
               )
@@ -452,7 +499,7 @@ class BaseScanner<T> {
                   season.status4k === MediaStatus.AVAILABLE
               )
             ? MediaStatus.PARTIALLY_AVAILABLE
-            : (!seasons.length && media.status4k !== MediaStatus.DELETED) ||
+            : (!seasons.length && hasPending4kRequests) ||
               media.seasons.some(
                 (season) => season.status4k === MediaStatus.PROCESSING
               )
