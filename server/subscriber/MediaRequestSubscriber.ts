@@ -738,14 +738,16 @@ export class MediaRequestSubscriber
 
     if (
       !fullMedia.requests.some((request) => !request.is4k) &&
-      fullMedia.status !== MediaStatus.AVAILABLE
+      fullMedia.status !== MediaStatus.AVAILABLE &&
+      fullMedia.status !== MediaStatus.DELETED
     ) {
       fullMedia.status = MediaStatus.UNKNOWN;
     }
 
     if (
       !fullMedia.requests.some((request) => request.is4k) &&
-      fullMedia.status4k !== MediaStatus.AVAILABLE
+      fullMedia.status4k !== MediaStatus.AVAILABLE &&
+      fullMedia.status4k !== MediaStatus.DELETED
     ) {
       fullMedia.status4k = MediaStatus.UNKNOWN;
     }
