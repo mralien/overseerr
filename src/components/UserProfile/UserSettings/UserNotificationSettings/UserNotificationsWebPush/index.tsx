@@ -8,7 +8,6 @@ import DeviceItem from '@app/components/UserProfile/UserSettings/UserNotificatio
 import useSettings from '@app/hooks/useSettings';
 import { useUser } from '@app/hooks/useUser';
 import globalMessages from '@app/i18n/globalMessages';
-import defineMessages from '@app/utils/defineMessages';
 import {
   getPushSubscription,
   subscribeToPushNotifications,
@@ -25,31 +24,28 @@ import axios from 'axios';
 import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
-import { useIntl } from 'react-intl';
+import { defineMessages, useIntl } from 'react-intl';
 import { useToasts } from 'react-toast-notifications';
 import useSWR, { mutate } from 'swr';
 
-const messages = defineMessages(
-  'components.UserProfile.UserSettings.UserNotificationSettings.UserNotificationsWebPush',
-  {
-    webpushsettingssaved: 'Web push notification settings saved successfully!',
-    webpushsettingsfailed: 'Web push notification settings failed to save.',
-    enablewebpush: 'Enable web push',
-    disablewebpush: 'Disable web push',
-    managedevices: 'Manage Devices',
-    type: 'type',
-    created: 'Created',
-    device: 'Device',
-    subscriptiondeleted: 'Subscription deleted.',
-    subscriptiondeleteerror:
-      'Something went wrong while deleting the user subscription.',
-    nodevicestoshow: 'You have no web push subscriptions to show.',
-    webpushhasbeenenabled: 'Web push has been enabled.',
-    webpushhasbeendisabled: 'Web push has been disabled.',
-    enablingwebpusherror: 'Something went wrong while enabling web push.',
-    disablingwebpusherror: 'Something went wrong while disabling web push.',
-  }
-);
+const messages = defineMessages({
+  webpushsettingssaved: 'Web push notification settings saved successfully!',
+  webpushsettingsfailed: 'Web push notification settings failed to save.',
+  enablewebpush: 'Enable web push',
+  disablewebpush: 'Disable web push',
+  managedevices: 'Manage Devices',
+  type: 'type',
+  created: 'Created',
+  device: 'Device',
+  subscriptiondeleted: 'Subscription deleted.',
+  subscriptiondeleteerror:
+    'Something went wrong while deleting the user subscription.',
+  nodevicestoshow: 'You have no web push subscriptions to show.',
+  webpushhasbeenenabled: 'Web push has been enabled.',
+  webpushhasbeendisabled: 'Web push has been disabled.',
+  enablingwebpusherror: 'Something went wrong while enabling web push.',
+  disablingwebpusherror: 'Something went wrong while disabling web push.',
+});
 
 const UserWebPushSettings = () => {
   const intl = useIntl();
@@ -110,6 +106,11 @@ const UserWebPushSettings = () => {
   const disablePushNotifications = async (endpoint?: string) => {
     try {
       await unsubscribeToPushNotifications(user?.id, endpoint);
+
+      // Delete from backend if endpoint is available
+      if (subEndpoint) {
+        await deletePushSubscriptionFromBackend(subEndpoint);
+      }
 
       localStorage.setItem('pushNotificationsEnabled', 'false');
       setWebPushEnabled(false);
