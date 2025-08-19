@@ -100,17 +100,6 @@ interface Quota {
   quotaDays?: number;
 }
 
-export interface ProxySettings {
-  enabled: boolean;
-  hostname: string;
-  port: number;
-  useSsl: boolean;
-  user: string;
-  password: string;
-  bypassFilter: string;
-  bypassLocalAddresses: boolean;
-}
-
 export interface MainSettings {
   apiKey: string;
   applicationTitle: string;
@@ -138,11 +127,29 @@ export interface MainSettings {
   youtubeUrl: string;
 }
 
+export interface ProxySettings {
+  enabled: boolean;
+  hostname: string;
+  port: number;
+  useSsl: boolean;
+  user: string;
+  password: string;
+  bypassFilter: string;
+  bypassLocalAddresses: boolean;
+}
+
+export interface DnsCacheSettings {
+  enabled: boolean;
+  forceMinTtl?: number;
+  forceMaxTtl?: number;
+}
+
 export interface NetworkSettings {
   csrfProtection: boolean;
   forceIpv4First: boolean;
   trustProxy: boolean;
   proxy: ProxySettings;
+  dnsCache: DnsCacheSettings;
 }
 
 interface PublicSettings {
@@ -541,6 +548,11 @@ class Settings {
           password: '',
           bypassFilter: '',
           bypassLocalAddresses: true,
+        },
+        dnsCache: {
+          enabled: false,
+          forceMinTtl: 0,
+          forceMaxTtl: -1,
         },
       },
     };
