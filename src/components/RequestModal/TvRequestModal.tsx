@@ -200,7 +200,8 @@ const TvRequestModal = ({
         seasons: settings.currentSettings.partialRequestsEnabled
           ? selectedSeasons
           : getAllSeasons().filter(
-              (season) => !getAllRequestedSeasons().includes(season)
+              (season) =>
+                !getAllRequestedSeasons().includes(season) && season !== 0
             ),
         ...overrideParams,
       });
@@ -296,8 +297,10 @@ const TvRequestModal = ({
     }
   };
 
-  const unrequestedSeasons = getAllSeasons().filter(
-    (season) => !getAllRequestedSeasons().includes(season)
+  const unrequestedSeasons = getAllSeasons().filter((season) =>
+    !settings.currentSettings.partialRequestsEnabled
+      ? !getAllRequestedSeasons().includes(season) && season !== 0
+      : !getAllRequestedSeasons().includes(season)
   );
 
   const toggleAllSeasons = (): void => {
@@ -309,12 +312,16 @@ const TvRequestModal = ({
       return;
     }
 
+    const standardUnrequestedSeasons = unrequestedSeasons.filter(
+      (seasonNumber) => seasonNumber !== 0
+    );
+
     if (
       data &&
       selectedSeasons.length >= 0 &&
-      selectedSeasons.length < unrequestedSeasons.length
+      selectedSeasons.length < standardUnrequestedSeasons.length
     ) {
-      setSelectedSeasons(unrequestedSeasons);
+      setSelectedSeasons(standardUnrequestedSeasons);
     } else {
       setSelectedSeasons([]);
     }
@@ -325,9 +332,9 @@ const TvRequestModal = ({
       return false;
     }
     return (
-      selectedSeasons.length ===
+      selectedSeasons.filter((season) => season !== 0).length ===
       getAllSeasons().filter(
-        (season) => !getAllRequestedSeasons().includes(season)
+        (season) => !getAllRequestedSeasons().includes(season) && season !== 0
       ).length
     );
   };
@@ -561,7 +568,11 @@ const TvRequestModal = ({
                 </thead>
                 <tbody className="divide-y divide-gray-700">
                   {data?.seasons
-                    .filter((season) => season.episodeCount !== 0)
+                    .filter((season) =>
+                      !settings.currentSettings.partialRequestsEnabled
+                        ? season.episodeCount !== 0 && season.seasonNumber !== 0
+                        : season.episodeCount !== 0
+                    )
                     .map((season) => {
                       const seasonRequest = getSeasonRequest(
                         season.seasonNumber
