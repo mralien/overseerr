@@ -2,26 +2,48 @@ name: Cypress Tests
 
 on:
   pull_request:
-    branches:
-      - '*'
+    branches: ['*']
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   push:
-    branches:
-      - develop
+    branches: [develop]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cypress-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   cypress-run:
-    runs-on: ubuntu-latest
+    name: Cypress Run
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
+
+      - name: Get PNPM version from package.json
+        id: pnpm-version
+        shell: bash
+        run: echo "pnpm_version=$(node -p 'require(`./package.json`).packageManager.split(\"@\")[1]')" >> $GITHUB_OUTPUT
+
       - name: Pnpm Setup
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ steps.pnpm-version.outputs.pnpm_version }}
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
@@ -36,6 +58,7 @@ jobs:
           # Fix test titles in cypress dashboard
           COMMIT_INFO_MESSAGE: ${{github.event.pull_request.title}}
           COMMIT_INFO_SHA: ${{github.event.pull_request.head.sha}}
+
       - name: Upload video files
         if: always()
         uses: actions/upload-artifact@v4
