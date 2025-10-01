@@ -363,6 +363,7 @@ export interface AllSettings {
   jobs: Record<JobId, JobSettings>;
   network: NetworkSettings;
   metadataSettings: MetadataSettings;
+  migrations: string[];
 }
 
 const SETTINGS_PATH = process.env.CONFIG_DIRECTORY
@@ -593,6 +594,7 @@ class Settings {
           forceMaxTtl: -1,
         },
       },
+      migrations: [],
     };
     if (initialSettings) {
       this.data = merge(this.data, initialSettings);
@@ -720,6 +722,14 @@ class Settings {
 
   set network(data: NetworkSettings) {
     this.data.network = data;
+  }
+
+  get migrations(): string[] {
+    return this.data.migrations;
+  }
+
+  set migrations(data: string[]) {
+    this.data.migrations = data;
   }
 
   get clientId(): string {
