@@ -36,27 +36,22 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
               with:
                   fetch-depth: 0
                   persist-credentials: false
 
             - name: Run Lychee link checker
-              uses: lycheeverse/lychee-action@v2
+              uses: lycheeverse/lychee-action@885c65f3dc543b57c898c8099f4e08c8afd178a2 # v2.6.1
               with:
                   fail: false
                   args: >-
                       --verbose
                       --no-progress
                       --accept 200..204,300..304,307,308,404,429,999
-                      --include '^(http|https)://.*'
                       --exclude '^file://'
-                      --exclude '^https?://localhost'
-                      --exclude '^https?://127\.0\.0\.1'
-                      --exclude '^https?://0\.0\.0\.0'
-                      --exclude '^https?://\[\:\:1\]'
-                      --exclude '^https?://\[\:\:\]'
-                      --exclude '^https?://support.discord.com'
+                      --exclude '^https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|\[::\])'
+                      --exclude '^https?://support\.discord\.com'
                       './docs/**/*.md'
                       './docs/**/*.mdx'
                       './gen-docs/**/*.md'
@@ -65,7 +60,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Upload Lychee report
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
               with:
                   name: lychee-report
                   path: |
