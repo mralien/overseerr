@@ -1,3 +1,39 @@
+# [1.35.0](https://github.com/sct/overseerr/compare/v1.34.0...v1.35.0) (2026-02-15)
+
+
+### Bug Fixes
+
+* add flag in local storage for notifications ([#4180](https://github.com/sct/overseerr/issues/4180)) ([325eecb](https://github.com/sct/overseerr/commit/325eecbad173074ce7c175dedeee12e69fc3c93e))
+* add push subscription verification and resubscribe logic ([#4163](https://github.com/sct/overseerr/issues/4163)) ([a1d3977](https://github.com/sct/overseerr/commit/a1d3977491f3d9130d1e96eb32ad977c7702295b))
+* **api:** update Plex Watchlist URL ([#4220](https://github.com/sct/overseerr/issues/4220)) ([b1c6e2f](https://github.com/sct/overseerr/commit/b1c6e2fdbde49859a661767e9b414555aa7abc31))
+* availability sync requests ([#3460](https://github.com/sct/overseerr/issues/3460)) ([605f187](https://github.com/sct/overseerr/commit/605f187b2736a6ae4d79fc2ad7824385d6849b15))
+* better handling for active webpush subscription ([#4146](https://github.com/sct/overseerr/issues/4146)) ([21b188b](https://github.com/sct/overseerr/commit/21b188b0b2f8cb5c7ae2527de616d61a7c55cdc7))
+* bypass specials when partial requests is disabled ([#4126](https://github.com/sct/overseerr/issues/4126)) ([f3cc3da](https://github.com/sct/overseerr/commit/f3cc3da8d3aadc8ed03f2226d0dcbd727a6847fe))
+* **ci:** update release runner to ubuntu-latest ([e7af346](https://github.com/sct/overseerr/commit/e7af346101a24f1eb9b82a2ce8825077ba19e443))
+* correct edge case with deletion not updating requests ([#4110](https://github.com/sct/overseerr/issues/4110)) ([8b465dc](https://github.com/sct/overseerr/commit/8b465dc210f32b92132ea1f1183f1a0c10a148b4))
+* correct notification sending for wrong status ([#4113](https://github.com/sct/overseerr/issues/4113)) ([9275a09](https://github.com/sct/overseerr/commit/9275a097f738c492e84ee528605f049cc281970d))
+* correct series setting to partially available ([#4109](https://github.com/sct/overseerr/issues/4109)) ([4cc3495](https://github.com/sct/overseerr/commit/4cc34956295d247aac2aab108f9f96baed477ed3))
+* correct specials affecting availability status ([#4092](https://github.com/sct/overseerr/issues/4092)) ([c9f52af](https://github.com/sct/overseerr/commit/c9f52afe0fa3f77aa4dd87c8681c4dfa23c72da5))
+* correct width of active subscription button ([#4168](https://github.com/sct/overseerr/issues/4168)) ([9bd4d33](https://github.com/sct/overseerr/commit/9bd4d33050521ef19c58c1f55739984f46340839))
+* **deps:** pin dependencies ([#4084](https://github.com/sct/overseerr/issues/4084)) ([c51fc39](https://github.com/sct/overseerr/commit/c51fc39e734052a05719e4136781535f9f98628d))
+* display request button when the show has requestable specials and is available ([#4081](https://github.com/sct/overseerr/issues/4081)) ([c62dbdd](https://github.com/sct/overseerr/commit/c62dbdd2940d84aabfa086f0d6b5572a8ce0e441))
+* **docker:** add py3-setuptools for arm builds on node 20 ([#4341](https://github.com/sct/overseerr/issues/4341)) ([98ea135](https://github.com/sct/overseerr/commit/98ea135f2d370faba0362d259fccf51d8fd44a16))
+* filter specials from modal all seasons and watchlist ([#4108](https://github.com/sct/overseerr/issues/4108)) ([7f868f3](https://github.com/sct/overseerr/commit/7f868f38e6f2f1834ea12dc8f5c095000c7a3c09))
+* handle currently available non-completed media ([#4115](https://github.com/sct/overseerr/issues/4115)) ([064ae92](https://github.com/sct/overseerr/commit/064ae921342b41e2c69a322668052e6cd9c172c5))
+* handle partial seasons more reliably ([#4116](https://github.com/sct/overseerr/issues/4116)) ([8cd53cd](https://github.com/sct/overseerr/commit/8cd53cdc3c0bc846f51f62b2452c61f957076ec7))
+* **mediaentity:** change cascade from `update` to `remove` ([#4135](https://github.com/sct/overseerr/issues/4135)) ([82bef4e](https://github.com/sct/overseerr/commit/82bef4e90bad6c8ab3a5189767ef4cc8dbe1f821))
+* **mediasubscriber:** remove async from afterInsert and afterUpdate ([#4136](https://github.com/sct/overseerr/issues/4136)) ([07dc8d7](https://github.com/sct/overseerr/commit/07dc8d755a0e94d100ecd8b1e950e43da1c0a7dd))
+* **notifications:** sending test-notifications for email now respects the allowSelfSigned value ([#4112](https://github.com/sct/overseerr/issues/4112)) ([60a1830](https://github.com/sct/overseerr/commit/60a18309e2ec1ecacaa374950baf4bf9281a37c0))
+* prevent request badge showing when no related media ([#4100](https://github.com/sct/overseerr/issues/4100)) ([7954115](https://github.com/sct/overseerr/commit/79541151485f11f2445217dcbdb10096209719d2))
+* pwa app badge ([#4117](https://github.com/sct/overseerr/issues/4117)) ([208d311](https://github.com/sct/overseerr/commit/208d31180cf8aac7f974f261fb5832485349fd1a))
+* update to node 20.x.x ([#4340](https://github.com/sct/overseerr/issues/4340)) ([b0a15d3](https://github.com/sct/overseerr/commit/b0a15d3809554610cd835b3e2474d5c6663cb8a9))
+
+
+### Features
+
+* **lang:** Translations update from Hosted Weblate ([#4060](https://github.com/sct/overseerr/issues/4060)) ([46a9b24](https://github.com/sct/overseerr/commit/46a9b244efd81e0e70a16a851252114bc2d3c2ca))
+* prepare seerr migration ([#4339](https://github.com/sct/overseerr/issues/4339)) ([ccf45eb](https://github.com/sct/overseerr/commit/ccf45eb8b9f9d18d8e06ccada222e3cff6dec695))
+
 # [1.34.0](https://github.com/sct/overseerr/compare/v1.33.2...v1.34.0) (2025-03-26)
 
 
